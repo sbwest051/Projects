@@ -35,6 +35,8 @@ export function REPLInput(props: REPLInputProps) {
   const [count, setCount] = useState<number>(0);
   const [files, setFiles] = useState<string[]>([]);
   const [inputValues, setInputValues] = useState<string[]>([""]);
+  // keeps track of whether a pdf is a link or a filepath
+  const [pdfTypes, setPdfTypes] = useState<string[]>(["filepath"]); 
 
 
   // This function is triggered when the button is clicked.
@@ -51,22 +53,27 @@ export function REPLInput(props: REPLInputProps) {
     <div className="repl-input">
       {/* <fieldset> */}
       {/* <legend>Enter a command:</legend> */}
-        {inputValues.map((value, index) => (
-      <ControlledInput
-        value={value}
-        setValue={(newValue: string) => {
-          const newInputValues = [...inputValues];
-          newInputValues[index] = newValue;
-           setInputValues(newInputValues);
-    }}
-    ariaLabel={`Command input ${index}`}
- 
-        //ariaLabel={"Command input"} 
-        // files={props.files} 
-        // setFiles={props.setFiles}    
-          />
-           ))}
-  
+      {inputValues.map((value, index) => (
+        <ControlledInput
+          value={value}
+          setValue={(newValue: string) => {
+            const newInputValues = [...inputValues];
+            newInputValues[index] = newValue;
+            setInputValues(newInputValues);
+          }}
+          ariaLabel={`Command input ${index}`}
+          pdfType={pdfTypes[index]}
+          setPdfType={(newType: string) => {
+            const newPdfTypes = [...pdfTypes];
+            newPdfTypes[index] = newType;
+            setPdfTypes(newPdfTypes);
+          }}
+
+          //ariaLabel={"Command input"}
+          // files={props.files}
+          // setFiles={props.setFiles}
+        />
+      ))}
 
       <button aria-label="button" onClick={() => handleSubmit(commandString)}>
         {/*This is where we will asign which function and/or code to use*/}

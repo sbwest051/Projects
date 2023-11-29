@@ -9,16 +9,25 @@ interface ControlledInputProps {
   //   Concretely, this means "a function that sets a state containing a string"
   //setValue: Dispatch<SetStateAction<string>>;
   setValue: (newValue: string) => void;
+  setPdfType: (newType: string) => void;
   ariaLabel: string;
+  pdfType: string;
 }
 
 
 export function ControlledInput({
   value,
   setValue,
+  setPdfType,
   ariaLabel,
-}: ControlledInputProps) {
   
+}: ControlledInputProps) {
+    const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = event.target.value;
+    setPdfType(selectedValue);
+    console.log(selectedValue);
+    // You can do something with the selected value here
+  };
   return (
     <>
       <input
@@ -29,9 +38,9 @@ export function ControlledInput({
         onChange={(ev) => setValue(ev.target.value)}
         aria-label={ariaLabel}
       ></input>
-      <select>
-        <option value="option1">Filepath</option>
-        <option value="option2"> Link </option>
+      <select onChange={handleSelectChange}>
+        <option value="filepath">Filepath</option>
+        <option value="link"> Link </option>
       </select>
     </>
     
