@@ -16,10 +16,9 @@ import internal from "stream";
  */
 interface REPLInputProps {
   history: [string, string | string[][]][];
+  //files: string[]
   setHistory: Dispatch<SetStateAction<[string, string | string[][]][]>>;
-  setVerbose: Dispatch<SetStateAction<boolean>>;
-  isVerbose: boolean;
-  data: string[][];
+  //setFiles: Dispatch<SetStateAction<string[]>>;
   count: number;
   setData: Dispatch<SetStateAction<string[][]>>;
   //setMode:
@@ -34,32 +33,46 @@ export function REPLInput(props: REPLInputProps) {
   // Manages the contents of the input box
   const [commandString, setCommandString] = useState<string>("");
   const [count, setCount] = useState<number>(0);
-  const [filename, setFile] = useState<string>("");
+  const [files, setFiles] = useState<string[]>([]);
+  const [inputValues, setInputValues] = useState<string[]>([""]);
+
 
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
     setCount(count + 1);
-
   }
-  /**
-   * We suggest breaking down this component into smaller components, think about the individual pieces
-   * of the REPL and how they connect to each other...
-   */
+  // function handleAddInputProp() {
+  //   //setFile([...inputProps, ""]);
+  // }
+  function handleAddInputProp() {
+    setInputValues([...inputValues, ""]);
+  }
   return (
     <div className="repl-input">
       {/* <fieldset> */}
-        {/* <legend>Enter a command:</legend> */}
-        <ControlledInput
-          value={commandString}
-          setValue={setCommandString}
-          ariaLabel={"Command input"}
-        />
-      {/* </fieldset> */}
+      {/* <legend>Enter a command:</legend> */}
+        {inputValues.map((value, index) => (
+      <ControlledInput
+        value={value}
+        setValue={(newValue: string) => {
+          const newInputValues = [...inputValues];
+          newInputValues[index] = newValue;
+           setInputValues(newInputValues);
+    }}
+    ariaLabel={`Command input ${index}`}
+ 
+        //ariaLabel={"Command input"} 
+        // files={props.files} 
+        // setFiles={props.setFiles}    
+          />
+           ))}
+  
 
       <button aria-label="button" onClick={() => handleSubmit(commandString)}>
         {/*This is where we will asign which function and/or code to use*/}
         "Submit"
       </button>
+      <button onClick={handleAddInputProp}> add new pdf </button>
     </div>
   );
 }

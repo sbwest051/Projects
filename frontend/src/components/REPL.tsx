@@ -8,25 +8,24 @@ import { REPLInput } from "./REPLInput";
 */
 export default function REPL() {
   const [history, setHistory] = useState<[string, string | string[][]][]>([]);
-  const [isVerbose, setVerbose] = useState<boolean>(false);
+  //const [isVerbose, setVerbose] = useState<boolean>(false);
   const [data, setData] = useState<string[][]>([]);
   const [count, setCount] = useState<number>(0);
+ // const [files, setFiles] = useState<string[]>([]);
 
   return (
     <div className="repl">
       <REPLHistory
         history={history}
-        isVerbose={isVerbose}
-        setVerbose={setVerbose}
         count={count}
       />
       {/* <hr></hr> */}
       <REPLInput
+       // files={files}
         history={history}
         setHistory={setHistory}
-        isVerbose={isVerbose}
-        setVerbose={setVerbose}
-        data={data}
+        //setFiles={setFiles}
+        //data={data}
         setData={setData}
         count={count}
       />
