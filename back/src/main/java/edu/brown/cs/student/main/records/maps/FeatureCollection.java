@@ -1,9 +1,7 @@
-package edu.brown.cs.student.main;
+package edu.brown.cs.student.main.records.maps;
 
 
-import edu.brown.cs.student.main.server.serializers.ServerSuccessResponse;
 import java.util.List;
-import java.util.Map;
 
 public record FeatureCollection(String type, List<Feature> features) {
   public FeatureCollection(List<Feature> features){

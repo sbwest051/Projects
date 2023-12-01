@@ -1,14 +1,9 @@
 package edu.brown.cs.student.main.server.handlers;
 
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
-import com.squareup.moshi.Types;
-import edu.brown.cs.student.main.CSV.CSVData;
-import edu.brown.cs.student.main.Feature;
-import edu.brown.cs.student.main.FeatureCollection;
+import edu.brown.cs.student.main.records.maps.Feature;
+import edu.brown.cs.student.main.records.maps.FeatureCollection;
 import edu.brown.cs.student.main.server.serializers.FeatureCollectionResponse;
 import edu.brown.cs.student.main.server.serializers.ServerFailureResponse;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

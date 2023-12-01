@@ -1,8 +1,6 @@
 package edu.brown.cs.student.main.server.handlers;
 
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
-import edu.brown.cs.student.main.FeatureCollection;
+import edu.brown.cs.student.main.records.maps.FeatureCollection;
 import edu.brown.cs.student.main.server.serializers.FeatureCollectionResponse;
 import spark.Request;
 import spark.Response;

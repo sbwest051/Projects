@@ -1,7 +1,7 @@
 package edu.brown.cs.student.main.server.handlers;
 
-import edu.brown.cs.student.main.Feature;
-import edu.brown.cs.student.main.FeatureCollection;
+import edu.brown.cs.student.main.records.maps.Feature;
+import edu.brown.cs.student.main.records.maps.FeatureCollection;
 import edu.brown.cs.student.main.server.serializers.FeatureCollectionResponse;
 import edu.brown.cs.student.main.server.serializers.ServerFailureResponse;
 import java.util.HashMap;

@@ -1,14 +1,13 @@
 package edu.brown.cs.student;
 
-import edu.brown.cs.student.main.Feature;
-import edu.brown.cs.student.main.FeatureCollection;
-import edu.brown.cs.student.main.geometry;
-import edu.brown.cs.student.main.properties;
+import edu.brown.cs.student.main.records.maps.Feature;
+import edu.brown.cs.student.main.records.maps.FeatureCollection;
+import edu.brown.cs.student.main.records.maps.geometry;
+import edu.brown.cs.student.main.records.maps.properties;
 import edu.brown.cs.student.main.server.handlers.JSONParser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

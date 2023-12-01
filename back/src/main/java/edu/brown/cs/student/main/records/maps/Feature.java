@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main;
+package edu.brown.cs.student.main.records.maps;
 
 public record Feature(String type, geometry geometry, properties properties) {
 

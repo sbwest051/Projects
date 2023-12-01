@@ -1,7 +1,7 @@
 package edu.brown.cs.student.main.server.handlers;
 
 import com.squareup.moshi.Moshi;
-import edu.brown.cs.student.main.FeatureCollection;
+import edu.brown.cs.student.main.records.maps.FeatureCollection;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

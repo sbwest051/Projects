@@ -7,6 +7,7 @@ import edu.brown.cs.student.main.CSV.Parser;
 import edu.brown.cs.student.main.server.handlers.*;
 import edu.brown.cs.student.main.server.handlers.ViewHandler;
 import edu.brown.cs.student.main.server.sources.ACSAPISource;
+import edu.brown.cs.student.main.server.sources.ChatPDFSource;
 import java.io.IOException;
 import java.util.List;
 import spark.Spark;
@@ -21,7 +22,11 @@ import spark.Spark;
  */
 public class Server {
 
-  public Server(ACSAPISource state) {
+  public Server() {
+    ChatPDFSource chatPDFSource = new ChatPDFSource();
+    //chatPDFSource.addURL("https://www.africau.edu/images/default/sample.pdf");
+    //chatPDFSource.addFile("data/allergy.pdf");
+    System.out.println(chatPDFSource.getSourceId());
     int port = 4002;
 
     Spark.port(port);
@@ -34,7 +39,7 @@ public class Server {
 
     // Setting up the handler for the GET /order and /mock endpoints
 
-    Parser<List<String>> parser;
+    /*Parser<List<String>> parser;
     CSVData data = null;
     try {
       parser = new Parser<>();
@@ -61,9 +66,7 @@ public class Server {
     } catch (IOException e){
       System.err.println(e.getMessage());
       System.exit(0);
-    }
-
-
+    }*/
 
     Spark.init();
     Spark.awaitInitialization();
@@ -73,6 +76,6 @@ public class Server {
   }
 
   public static void main(String[] args) {
-    Server server = new Server(new ACSAPISource());
+    Server server = new Server();
   }
 }
