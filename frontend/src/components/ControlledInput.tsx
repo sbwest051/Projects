@@ -40,7 +40,7 @@ export function ControlledInput({
       ></input>
       <select onChange={handleSelectChange}>
         <option value="filepath">Filepath</option>
-        <option value="link"> Link </option>
+        <option value="link">Link</option>
       </select>
     </>
     

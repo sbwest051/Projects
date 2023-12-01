@@ -21,6 +21,7 @@ interface REPLInputProps {
   //setFiles: Dispatch<SetStateAction<string[]>>;
   count: number;
   setData: Dispatch<SetStateAction<string[][]>>;
+  pdfType: string;
   //setMode:
 }
 /**
@@ -42,12 +43,22 @@ export function REPLInput(props: REPLInputProps) {
   // This function is triggered when the button is clicked.
   function handleSubmit(commandString: string) {
     setCount(count + 1);
+    setPdfTypes([...pdfTypes,props.pdfType ]) //check to see if this line is necessary 
+    console.log("Selected PDF Types:", pdfTypes);
+
+
+    // inputValues.forEach((value, index) => {
+    const dataValues = inputValues.map((value, index) => [pdfTypes[index], value])
+  // });
   }
   // function handleAddInputProp() {
   //   //setFile([...inputProps, ""]);
   // }
   function handleAddInputProp() {
     setInputValues([...inputValues, ""]);
+    console.log(...inputValues);
+    setPdfTypes([...pdfTypes,props.pdfType ])
+    console.log(...pdfTypes);
   }
   return (
     <div className="repl-input">
