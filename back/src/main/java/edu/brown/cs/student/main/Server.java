@@ -4,6 +4,7 @@ import static spark.Spark.after;
 
 import edu.brown.cs.student.main.CSV.CSVData;
 import edu.brown.cs.student.main.CSV.Parser;
+import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import edu.brown.cs.student.main.server.handlers.*;
 import edu.brown.cs.student.main.server.handlers.ViewHandler;
 import edu.brown.cs.student.main.server.sources.ACSAPISource;
@@ -25,7 +26,14 @@ public class Server {
   public Server() {
     ChatPDFSource chatPDFSource = new ChatPDFSource();
     //chatPDFSource.addURL("https://www.africau.edu/images/default/sample.pdf");
-    //chatPDFSource.addFile("data/allergy.pdf");
+
+    try {
+      chatPDFSource.addFile("data/allergy.pdf");
+      chatPDFSource.askQuestion("Please explain how allergen uptake was tested with sources.");
+    } catch (DatasourceException e) {
+
+    }
+
     System.out.println(chatPDFSource.getSourceId());
     int port = 4002;
 

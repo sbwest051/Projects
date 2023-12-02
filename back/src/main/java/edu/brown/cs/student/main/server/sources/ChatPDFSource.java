@@ -4,7 +4,9 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.priv.key;
+import edu.brown.cs.student.main.records.ChatPDFRequest;
 import edu.brown.cs.student.main.records.ChatPDFResponse;
+import edu.brown.cs.student.main.records.Message;
 import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,6 +24,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -41,7 +44,7 @@ import org.apache.http.impl.client.HttpClients;
 public class ChatPDFSource {
   private String sourceId;
   public ChatPDFSource() {
-    this.sourceId = "";
+    this.sourceId = null;
   }
   public void addURL(String url) throws DatasourceException {
     HttpClient client = HttpClient.newHttpClient();
@@ -89,6 +92,53 @@ public class ChatPDFSource {
     }
   }
 
+  public void askQuestion(String question) throws DatasourceException {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("https://api.chatpdf.com/v1/chats/message"))
+        .timeout(Duration.ofMinutes(2))
+        .header("x-api-key", key.API_KEY)
+        .header("Content-Type", "application/json")
+        .POST(BodyPublishers.ofString(this.serializeQuestion(question)))
+        .build();
+    try {
+      HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+      if (response.statusCode() != 200){
+        throw new DatasourceException("Status: "+ response.statusCode() + "; "
+            + "Message: "+ response.body());
+      }
+      ChatPDFResponse pdfResponse = this.deserializeResponse(response.body());
+      System.out.println(pdfResponse.content());
+      System.out.println(pdfResponse.references());
+    } catch (IOException | InterruptedException | DatasourceException e) {
+      throw new DatasourceException(e.getMessage());
+    }
+  }
+
+  private String serializeQuestion(String question) throws DatasourceException {
+    if (this.sourceId == null){
+      throw new DatasourceException("No pdf loaded.");
+    }
+    Message message = new Message("user", question);
+    List<Message> messages = new ArrayList<>();
+    messages.add(message);
+    ChatPDFRequest request = new ChatPDFRequest(true, this.sourceId, messages);
+
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<ChatPDFRequest> adapter = moshi.adapter(ChatPDFRequest.class);
+    return adapter.toJson(request);
+  }
+
+  private ChatPDFResponse deserializeResponse(String responseJson) throws DatasourceException {
+    try {
+      Moshi moshi = new Moshi.Builder().build();
+      JsonAdapter<ChatPDFResponse> adapter = moshi.adapter(ChatPDFResponse.class);
+      return adapter.fromJson(responseJson);
+    } catch (IOException e) {
+      throw new DatasourceException(e.getMessage());
+    }
+  }
+
   private void setSourceId(String json) throws DatasourceException {
     try {
       Moshi moshi = new Moshi.Builder().build();
@@ -102,16 +152,18 @@ public class ChatPDFSource {
   public String getSourceId() {
     return this.sourceId;
   }
+}
 
-  /**
-   * Connects to a url address and returns the connection.
-   *
-   * @param requestURL The url to be connected to
-   * @return The connection formed by the url.
-   * @throws DatasourceException Thrown if there is an issue connecting to the site if the address
-   *     is improper or it sends the wrong response code.
-   * @throws IOException
-   */
+/*
+ *//**
+ * Connects to a url address and returns the connection.
+ *
+ * @param requestURL The url to be connected to
+ * @return The connection formed by the url.
+ * @throws DatasourceException Thrown if there is an issue connecting to the site if the address
+ *     is improper or it sends the wrong response code.
+ * @throws IOException
+ *//*
   private static HttpURLConnection connect(URL requestURL) throws DatasourceException, IOException {
     URLConnection urlConnection = requestURL.openConnection();
     if (!(urlConnection instanceof HttpURLConnection)) {
@@ -127,14 +179,14 @@ public class ChatPDFSource {
     return clientConnection;
   }
 
-  /**
-   * Deserializes the data acquired from the API when given a URL
-   *
-   * @param requestURL A URL of the API which directs the server to data from the ACS
-   * @return Returns the data from the API as a list of lists of strings.
-   * @throws DatasourceException Thrown when there is an issue connecting to the URL
-   * @throws IOException Thrown when there is an issue reading what was acquired by the URL
-   */
+  *//**
+ * Deserializes the data acquired from the API when given a URL
+ *
+ * @param requestURL A URL of the API which directs the server to data from the ACS
+ * @return Returns the data from the API as a list of lists of strings.
+ * @throws DatasourceException Thrown when there is an issue connecting to the URL
+ * @throws IOException Thrown when there is an issue reading what was acquired by the URL
+ *//*
   private List<List<String>> deserialize(URL requestURL) throws DatasourceException, IOException {
     HttpURLConnection clientConnection = connect(requestURL);
     Moshi moshi = new Moshi.Builder().build();
@@ -143,5 +195,4 @@ public class ChatPDFSource {
     JsonAdapter<List<List<String>>> adapter = moshi.adapter(listType);
     return adapter.fromJson(
         new Scanner(clientConnection.getInputStream()).useDelimiter("\\A").next());
-  }
-}
+  }*/
