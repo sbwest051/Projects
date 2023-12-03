@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main.records.PLME.request;
+package edu.brown.cs.student.main.records.PLME;
 
 import java.util.List;
 import java.util.Map;

@@ -2,19 +2,6 @@ package edu.brown.cs.student.main;
 
 import static spark.Spark.after;
 
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
-import edu.brown.cs.student.main.records.ChatPDF.ChatPDFRequest;
-import edu.brown.cs.student.main.records.PLME.request.InputFile;
-import edu.brown.cs.student.main.records.PLME.request.MDCInput;
-import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
-import edu.brown.cs.student.main.server.exceptions.DatasourceException;
-import java.sql.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import spark.Spark;
 
 /**
@@ -28,18 +15,6 @@ import spark.Spark;
 public class Server {
 
   public Server() {
-    ChatPDFSource chatPDFSource = new ChatPDFSource();
-    //chatPDFSource.addURL("https://www.africau.edu/images/default/sample.pdf");
-
-    /*try {
-      chatPDFSource.addFile("data/allergy.pdf");
-      chatPDFSource.askQuestion("Please explain how allergen uptake was tested with sources.");
-    } catch (DatasourceException e) {
-
-    }*/
-
-    //System.out.println(chatPDFSource.getSourceId());
-
     int port = 4002;
 
     Spark.port(port);
@@ -50,7 +25,7 @@ public class Server {
           response.header("Access-Control-Allow-Methods", "*");
         });
 
-    Spark.post("plme", new MetadataHandler());
+    Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
 
     // Setting up the handler for the GET /order and /mock endpoints
 

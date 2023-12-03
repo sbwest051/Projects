@@ -5,7 +5,7 @@ import com.squareup.moshi.Moshi;
 import edu.brown.cs.student.main.priv.key;
 import edu.brown.cs.student.main.records.ChatPDF.ChatPDFRequest;
 import edu.brown.cs.student.main.records.ChatPDF.ChatPDFResponse;
-import edu.brown.cs.student.main.records.PLME.response.Message;
+import edu.brown.cs.student.main.records.ChatPDF.Message;
 import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,21 +30,16 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-/**
- * Connects to the American Community Survey API and pulls data from it. Will take in the name of a
- * state and county and retrieve the reference codes for them, to then search for and return the
- * percentage of homes in the county use broadband.
- */
-public class ChatPDFSource {
-  private String sourceId;
+public class ChatPDFSource implements PDFSource {
   private final HttpClient httpClient;
   private final CloseableHttpClient closeableHttpClient;
   public ChatPDFSource() {
     this.httpClient = HttpClient.newHttpClient();
     this.closeableHttpClient = HttpClients.createDefault();
-    this.sourceId = null;
   }
-  public void addURL(String url) throws DatasourceException {
+
+  @Override
+  public String addURL(String url) throws DatasourceException {
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create("https://api.chatpdf.com/v1/sources/add-url"))
         .timeout(Duration.ofMinutes(2))
@@ -53,13 +48,14 @@ public class ChatPDFSource {
         .POST(BodyPublishers.ofString("{\"url\": \""+ url +"\"}"))
         .build();
     try {
-      this.setSourceId(this.httpClient.send(request, BodyHandlers.ofString()).body());
+      return deserializeResponse(this.httpClient.send(request, BodyHandlers.ofString()).body()).sourceId();
     } catch (IOException | InterruptedException | DatasourceException e) {
       throw new DatasourceException(e.getMessage());
     }
   }
 
-  public void addFile(String filepath) throws DatasourceException {
+  @Override
+  public String addFile(String filepath) throws DatasourceException {
     try {
       HttpPost request = new HttpPost("https://api.chatpdf.com/v1/sources/add-file");
       request.addHeader("x-api-key", key.API_KEY);
@@ -82,15 +78,17 @@ public class ChatPDFSource {
         throw new DatasourceException("Status: "+ response.getStatusLine().getStatusCode() + "; "
             + "Message: "+ responseEntity);
       }
-      this.setSourceId(new BufferedReader(new InputStreamReader(responseEntity.getContent())).readLine());
+      return deserializeResponse(new BufferedReader(new InputStreamReader(responseEntity.getContent())).readLine()).sourceId();
     } catch (IOException | DatasourceException e) {
       throw new DatasourceException(e.getMessage());
     }
   }
 
-  public ChatPDFResponse askQuestion(String question) throws DatasourceException {
-    if (this.sourceId == null){
-      throw new DatasourceException("No pdf loaded.");
+  @Override
+  public String getContent(String sourceId, String question) throws DatasourceException
+      , NullPointerException {
+    if (sourceId == null){
+      throw new NullPointerException();
     }
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest request = HttpRequest.newBuilder()
@@ -98,7 +96,7 @@ public class ChatPDFSource {
         .timeout(Duration.ofMinutes(2))
         .header("x-api-key", key.API_KEY)
         .header("Content-Type", "application/json")
-        .POST(BodyPublishers.ofString(this.serializeRequest(question)))
+        .POST(BodyPublishers.ofString(this.serializeRequest(sourceId, question)))
         .build();
     try {
       HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
@@ -106,21 +104,20 @@ public class ChatPDFSource {
         throw new DatasourceException("Status: "+ response.statusCode() + "; "
             + "Message: "+ response.body());
       }
-
-      return this.deserializeResponse(response.body());
+      return this.deserializeResponse(response.body()).content();
     } catch (IOException | InterruptedException | DatasourceException e) {
       throw new DatasourceException(e.getMessage());
     }
   }
 
-  private String serializeRequest(String question) throws DatasourceException {
-    if (this.sourceId == null){
-      throw new DatasourceException("No pdf loaded.");
+  private String serializeRequest(String sourceId, String question) throws DatasourceException {
+    if (sourceId == null){
+      throw new DatasourceException("SourceId of PDF was null. PDF may not have been loaded.");
     }
     Message message = new Message("user", question);
     List<Message> messages = new ArrayList<>();
     messages.add(message);
-    ChatPDFRequest request = new ChatPDFRequest(true, this.sourceId, messages);
+    ChatPDFRequest request = new ChatPDFRequest(true, sourceId, messages);
 
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<ChatPDFRequest> adapter = moshi.adapter(ChatPDFRequest.class);
@@ -131,23 +128,9 @@ public class ChatPDFSource {
     try {
       Moshi moshi = new Moshi.Builder().build();
       JsonAdapter<ChatPDFResponse> adapter = moshi.adapter(ChatPDFResponse.class);
-      return adapter.fromJson(responseJson);
+      return Objects.requireNonNull(adapter.fromJson(responseJson));
     } catch (IOException e) {
       throw new DatasourceException(e.getMessage());
     }
-  }
-
-  private void setSourceId(String json) throws DatasourceException {
-    try {
-      Moshi moshi = new Moshi.Builder().build();
-      JsonAdapter<ChatPDFResponse> adapter = moshi.adapter(ChatPDFResponse.class);
-      this.sourceId = Objects.requireNonNull(adapter.fromJson(json)).sourceId();
-    } catch (IOException | NullPointerException e) {
-      throw new DatasourceException(e.getMessage());
-    }
-  }
-
-  public String getSourceId() {
-    return this.sourceId;
   }
 }

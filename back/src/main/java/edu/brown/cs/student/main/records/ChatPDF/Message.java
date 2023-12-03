@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main.records.PLME.response;
+package edu.brown.cs.student.main.records.ChatPDF;
 
 public record Message(String role, String content) {
 

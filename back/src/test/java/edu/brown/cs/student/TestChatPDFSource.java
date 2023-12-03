@@ -7,16 +7,13 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.CSV.CSVData;
 import edu.brown.cs.student.main.CSV.Parser;
-import edu.brown.cs.student.main.CSV.creators.ListCreator;
+import edu.brown.cs.student.main.ChatPDFSource;
 import edu.brown.cs.student.main.FactoryFailureException;
+import edu.brown.cs.student.main.MetadataHandler;
 import edu.brown.cs.student.main.records.PLME.request.InputFile;
-import edu.brown.cs.student.main.records.PLME.request.MDCInput;
+import edu.brown.cs.student.main.records.PLME.MDCInput;
 import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
-import edu.brown.cs.student.main.server.handlers.LoadHandler;
-import edu.brown.cs.student.main.server.handlers.ViewHandler;
-import edu.brown.cs.student.main.server.serializers.ServerFailureResponse;
-import edu.brown.cs.student.main.server.serializers.ServerSuccessResponse;
-import java.io.FileReader;
+import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -60,8 +57,7 @@ public class TestChatPDFSource {
       System.err.println(e.getMessage());
       System.exit(0);
     }
-    Spark.get("loadcsv", new LoadHandler(data));
-    Spark.get("viewcsv", new ViewHandler(data));
+    Spark.get("plme", new MetadataHandler(new ChatPDFSource()));
 
     Spark.init();
     Spark.awaitInitialization();
@@ -97,11 +93,21 @@ public class TestChatPDFSource {
     inputs.add(listinput);
     inputs.add(mapinput);
     System.out.println(adapter.toJson(new PLMEInput("csv filepath", list, inputs)));
+
+    try {
+      ChatPDFSource chatPDFSource = new ChatPDFSource();
+      String sourceId1 = chatPDFSource.addURL("https://www.africau.edu/images/default/sample.pdf");
+      String sourceId2 = chatPDFSource.addFile("data/allergy.pdf");
+      chatPDFSource.getContent(sourceId2, "Please explain how allergen uptake was tested with "
+          + "sources.");
+    } catch (DatasourceException e) {
+      System.out.println("bruh");
+    }
   }
 
   @AfterEach
   public void tearDown() {
-    Spark.unmap("/loadcsv");
+    Spark.unmap("/plme");
     Spark.awaitStop();
   }
 

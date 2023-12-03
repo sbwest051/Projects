@@ -4,24 +4,34 @@ import static spark.Spark.notFound;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import edu.brown.cs.student.main.records.ChatPDF.ChatPDFResponse;
+import edu.brown.cs.student.main.CSV.CSVData;
+import edu.brown.cs.student.main.CSV.Parser;
+import edu.brown.cs.student.main.CSV.creators.InputFileCreator;
 import edu.brown.cs.student.main.records.PLME.request.InputFile;
-import edu.brown.cs.student.main.records.PLME.request.MDCInput;
+import edu.brown.cs.student.main.records.PLME.MDCInput;
 import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
+import edu.brown.cs.student.main.records.PLME.response.File;
+import edu.brown.cs.student.main.records.PLME.response.Metadata;
 import edu.brown.cs.student.main.records.PLME.response.MetadataTable;
 import edu.brown.cs.student.main.server.exceptions.BadRequestException;
 import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import edu.brown.cs.student.main.server.serializers.ServerFailureResponse;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 public class MetadataHandler implements Route {
   public static final int CHAR_LIMIT = 2500;
-  public MetadataHandler(){
-
+  private final PDFSource source;
+  public MetadataHandler(PDFSource source){
+    this.source = source;
   }
 
   @Override
@@ -38,6 +48,10 @@ public class MetadataHandler implements Route {
           + "maybe ill-formatted. More details: " + e.getMessage()).serialize();
     }
 
+    if (input == null) {
+      return new ServerFailureResponse("error_bad_request", "Empty json.").serialize();
+    }
+
     if (checkEmptyInput(input)){
       return new ServerFailureResponse("error_bad_request", "Input is missing one or more "
           + "parameters. Input must contain at least one pdf (filepath or url) and a full column "
@@ -49,7 +63,17 @@ public class MetadataHandler implements Route {
           + "maximum of 2500 characters.").serialize();
     }
 
-    return null;
+    if (input.filepath() == null || input.filepath().isEmpty()) {
+      return this.compile(input.files(), input.columns()).serialize();
+    } else {
+      try {
+        CSVData<InputFile> fileCSV = new CSVData<>(new Parser<InputFile>());
+        fileCSV.setCSV(new FileReader(input.filepath()), new InputFileCreator());
+        return this.compile(fileCSV.getCSV(),input.columns()).serialize();
+      } catch (IOException | FactoryFailureException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   private PLMEInput deserialize(String body) throws BadRequestException {
@@ -62,7 +86,7 @@ public class MetadataHandler implements Route {
     }
   }
 
-  private boolean checkEmptyInput(PLMEInput input){
+  private boolean checkEmptyInput(@NotNull PLMEInput input){
     if ((input.filepath() == null || input.filepath().isEmpty())
             && (this.checkEmptyFiles(input.files()))
             && (input.columns() == null || input.columns().isEmpty())){
@@ -93,7 +117,7 @@ public class MetadataHandler implements Route {
     return true;
   }
 
-  private boolean checkColumnValidity(List<MDCInput> columns){
+  private boolean checkColumnValidity(@NotNull List<MDCInput> columns){
     for (MDCInput column : columns){
       if (column.question().length() > CHAR_LIMIT){
         return false;
@@ -102,7 +126,61 @@ public class MetadataHandler implements Route {
     return true;
   }
 
-  private void delegate(){
+  private MetadataTable compile(List<InputFile> files, List<MDCInput> columns){
+    List<File> fileList = new ArrayList<>();
+    for (InputFile file : files){
+      String result = "success";
+      List<Metadata> metadataList = new ArrayList<>();
 
+      String sourceId = null;
+      try {
+        if (file.url() == null || file.url().isEmpty()) {
+          sourceId = this.source.addFile(file.filepath());
+        } else {
+          sourceId = this.source.addURL(file.url());
+        }
+      } catch (DatasourceException e) {
+          result = "error";
+          File outputFile = new File(result, file.filepath(), file.url(), file.title(), null,
+              e.getMessage());
+          fileList.add(outputFile);
+      }
+      if (result.equals("success")){
+        String subresult = "success";
+        String content = null;
+        Map<String, Double[]> data = null;
+        for (MDCInput column : columns){
+          try {
+            content = this.source.getContent(sourceId, column.question());
+          } catch (DatasourceException e) {
+            subresult = "error";
+            Metadata metadata = new Metadata(subresult, null, null, e.getMessage());
+            metadataList.add(metadata);
+          }
+          if (subresult.equals("success")){
+            if (column.keywordList() == null || column.keywordList().isEmpty()){
+              data = this.calculateRScores(content, column.keywordMap());
+            } else {
+              data = this.calculateRScores(content, column.keywordList());
+            }
+          }
+          Metadata metadata = new Metadata(subresult, content, data, null);
+          metadataList.add(metadata);
+        }
+      }
+      File outputFile = new File(result, file.filepath(), file.url(), file.title(), metadataList,
+          null);
+      fileList.add(outputFile);
+    }
+    return new MetadataTable(columns, fileList);
+  }
+
+  public Map<String, Double[]> calculateRScores(String content, List<String> keywordList){
+    return null;
+  }
+
+  public Map<String, Double[]> calculateRScores(String content,
+      Map<String, List<String>> keywordMap){
+    return null;
   }
 }
