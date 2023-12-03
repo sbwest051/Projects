@@ -21,14 +21,13 @@ export default function REPL() {
       />
       {/* <hr></hr> */}
       <REPLInput
-       // files={files}
+        // files={files}
         history={history}
         setHistory={setHistory}
         //setFiles={setFiles}
         //data={data}
         setData={setData}
-        count={count}
-      />
+        count={count} pdfType={""}      />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import "../styles/main.css";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ControlledInput } from "./ControlledInput";
+import { QueryInput } from "./QueryInput";
 import { LoadViewCSV, SearchCSV } from "../mockedJson";
-import internal from "stream";
+
 
 /**
  * A connection between components in the mock.
@@ -40,11 +41,12 @@ export function REPLInput(props: REPLInputProps) {
   const [pdfTypes, setPdfTypes] = useState<string[]>(["filepath"]); 
 
 
-  // This function is triggered when the button is clicked.
+  // This function is triggered when the submit button is clicked.
   function handleSubmit(commandString: string) {
     setCount(count + 1);
     setPdfTypes([...pdfTypes,props.pdfType ]) //check to see if this line is necessary 
     console.log("Selected PDF Types:", pdfTypes);
+    //TODO: Add functionality to pass to backend handler
 
 
     // inputValues.forEach((value, index) => {
@@ -64,6 +66,17 @@ export function REPLInput(props: REPLInputProps) {
     <div className="repl-input">
       {/* <fieldset> */}
       {/* <legend>Enter a command:</legend> */}
+      <QueryInput
+        value={commandString}
+        setValue={setCommandString}
+        ariaLabel={"Query input"}
+        onKeyPress={(e) => {
+        if (e.key === "Enter") {
+              handleSubmit(commandString);
+            }
+          }}
+      />
+
       {inputValues.map((value, index) => (
         <ControlledInput
           value={value}
