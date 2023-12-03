@@ -1,4 +1,4 @@
-package edu.brown.cs.student.main.records;
+package edu.brown.cs.student.main.records.PLME.response;
 import java.util.List;
 
 public record MetadataTable(String type, List<File> fileList) {
