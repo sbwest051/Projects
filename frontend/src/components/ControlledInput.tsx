@@ -10,6 +10,8 @@ interface ControlledInputProps {
   //setValue: Dispatch<SetStateAction<string>>;
   setValue: (newValue: string) => void;
   setPdfType: (newType: string) => void;
+  title : string;
+  setTitle : (newValue: string) => void;
   ariaLabel: string;
   pdfType: string;
 }
@@ -18,6 +20,8 @@ interface ControlledInputProps {
 export function ControlledInput({
   value,
   setValue,
+  title,
+  setTitle,
   setPdfType,
   ariaLabel,
   
@@ -30,6 +34,22 @@ export function ControlledInput({
   };
   return (
     <>
+          <input
+        type="text"
+        className="repl-command-box"
+        value={title}
+        placeholder="Enter Title of PDF"
+        onChange={(ev) => setTitle(ev.target.value)}
+        aria-label={ariaLabel}
+      />
+          {/* <input
+        type="text"
+        className="repl-command-box"
+        value={value}
+        placeholder="Enter Title of PDF"
+        onChange={(ev) => setValue(ev.target.value)}
+        aria-label={ariaLabel}
+      ></input> */}
       <input
         type="text"
         className="repl-command-box"
@@ -38,6 +58,7 @@ export function ControlledInput({
         onChange={(ev) => setValue(ev.target.value)}
         aria-label={ariaLabel}
       ></input>
+      
       <select onChange={handleSelectChange}>
         <option value="filepath">Filepath</option>
         <option value="link">Link</option>

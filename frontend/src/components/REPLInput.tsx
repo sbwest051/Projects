@@ -2,7 +2,6 @@ import "../styles/main.css";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { QueryInput } from "./QueryInput";
-import { LoadViewCSV, SearchCSV } from "../mockedJson";
 
 
 /**
@@ -37,6 +36,7 @@ export function REPLInput(props: REPLInputProps) {
   const [count, setCount] = useState<number>(0);
   const [files, setFiles] = useState<string[]>([]);
   const [inputValues, setInputValues] = useState<string[]>([""]);
+  const [titleValues, setTitleValues] = useState<string[]>([""]);
   // keeps track of whether a pdf is a link or a filepath
   const [pdfTypes, setPdfTypes] = useState<string[]>(["filepath"]); 
 
@@ -50,7 +50,8 @@ export function REPLInput(props: REPLInputProps) {
 
 
     // inputValues.forEach((value, index) => {
-    const dataValues = inputValues.map((value, index) => [pdfTypes[index], value])
+     //list of lists with each inner list being a list that tells  [pdf type, title, link/filepath,] 
+    const dataValues = inputValues.map((value, index) => [pdfTypes[index], titleValues[index], value])
   // });
   }
   // function handleAddInputProp() {
@@ -58,6 +59,7 @@ export function REPLInput(props: REPLInputProps) {
   // }
   function handleAddInputProp() {
     setInputValues([...inputValues, ""]);
+    setTitleValues([...titleValues, ""]);
     console.log(...inputValues);
     setPdfTypes([...pdfTypes,props.pdfType ])
     console.log(...pdfTypes);
@@ -76,6 +78,7 @@ export function REPLInput(props: REPLInputProps) {
             }
           }}
       />
+      <> </>
 
       {inputValues.map((value, index) => (
         <ControlledInput
@@ -84,6 +87,12 @@ export function REPLInput(props: REPLInputProps) {
             const newInputValues = [...inputValues];
             newInputValues[index] = newValue;
             setInputValues(newInputValues);
+          }}
+          title={titleValues[index]}
+          setTitle={(newTitle: string) => {
+          const newTitleValues = [...titleValues];
+          newTitleValues[index] = newTitle;
+          setTitleValues(newTitleValues);
           }}
           ariaLabel={`Command input ${index}`}
           pdfType={pdfTypes[index]}
