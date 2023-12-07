@@ -1,17 +1,17 @@
-package edu.brown.cs.student;
+package edu.brown.cs.student.server;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.records.maps.Feature;
 import edu.brown.cs.student.main.records.maps.FeatureCollection;
 import edu.brown.cs.student.main.records.maps.geometry;
 import edu.brown.cs.student.main.records.maps.properties;
+import edu.brown.cs.student.main.server.handlers.GetJsonHandler;
 import edu.brown.cs.student.main.server.handlers.JSONParser;
-import edu.brown.cs.student.main.server.handlers.SearchJsonHandler;
 import edu.brown.cs.student.main.server.serializers.FeatureCollectionResponse;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.testng.Assert;
 import spark.Spark;
 
-public class TestSearchJson {
+public class TestGetJson {
 
   @BeforeAll
   public static void setup_before_everything() {
@@ -41,17 +41,18 @@ public class TestSearchJson {
   public void setup() throws IOException {
     JSONParser jsonParser = new JSONParser();
     jsonParser.fromJSON("data/test/TestFeatureCollection.json");
-    Spark.get("searchjson", new SearchJsonHandler(jsonParser.getFeatureCollection()));
+    Spark.get("getjson", new GetJsonHandler(jsonParser.getFeatureCollection()));
     Spark.init();
     Spark.awaitInitialization();
   }
+
   @AfterEach
   public void teardown() {
     Spark.unmap("getjson");
     Spark.awaitStop();
   }
   @Test
-  public void testSuccess() throws IOException {
+  public void testGetJson() throws IOException {
     //Using mocked json
     List<List<List<List<Double>>>> coordinates = new ArrayList<>();
     List<Double> c1 = new ArrayList<>();
@@ -79,36 +80,7 @@ public class TestSearchJson {
     List<Feature> featureList = new ArrayList<>();
     featureList.add(feature);
     FeatureCollection expectedFC = new FeatureCollection(featureList);
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").data(), expectedFC);
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").input().get("avgX"),
-        -86.756777);
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").input().get("avgY"),
-        33.497543);
-    List<String> queryList = new ArrayList<>();
-    queryList.add("outside");
-    queryList.add("outside");
-    queryList.add("outside");
-    queryList.add("outside");
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").input().get(
-        "input_history"), queryList);
-    Assert.assertTrue(deserializeFCResponse("searchjson?keyword=abcdefgh").data().features().isEmpty());
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=abcdefgh").input().get("avgX"),
-        0.0);
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=abcdefgh").input().get("avgY"),
-        0.0);
-    queryList.add("abcdefgh");
-    queryList.add("abcdefgh");
-    queryList.add("abcdefgh");
-    queryList.add("abcdefgh");
-    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=abcdefgh").input().get(
-        "input_history"),
-        queryList);
-  }
-
-  @Test
-  public void testErrorResponses() throws IOException {
-    Assert.assertEquals(deserialize("searchjson").get("error_type"),"error_bad_request");
-    Assert.assertEquals(deserialize("searchjson").get("details"),"Keyword was not entered.");
+    Assert.assertEquals(deserializeFCResponse("getjson").data(), expectedFC);
   }
   private static HttpURLConnection tryRequest(String apiCall) throws IOException {
     // Configure the connection (but don't actually send the request yet)
@@ -122,17 +94,6 @@ public class TestSearchJson {
     clientConnection.connect();
     return clientConnection;
   }
-
-  private Map<String, Object> deserialize(String apiCall) throws IOException {
-    HttpURLConnection clientConnection = tryRequest(apiCall);
-    Assert.assertEquals(clientConnection.getResponseCode(), 200);
-    Moshi moshi = new Moshi.Builder().build();
-    Type mapType = Types.newParameterizedType(Map.class, String.class, Object.class);
-    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(mapType);
-    return adapter.fromJson(
-        new Scanner(clientConnection.getInputStream()).useDelimiter("\\A").next());
-  }
-
   private FeatureCollectionResponse deserializeFCResponse(String apiCall) throws IOException {
     HttpURLConnection clientConnection = tryRequest(apiCall);
     Assert.assertEquals(clientConnection.getResponseCode(), 200);

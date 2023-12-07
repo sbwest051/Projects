@@ -1,4 +1,4 @@
-package edu.brown.cs.student;
+package edu.brown.cs.student.server;
 
 import edu.brown.cs.student.main.server.sources.ACSAPISource;
 import edu.brown.cs.student.main.server.exceptions.BadRequestException;
