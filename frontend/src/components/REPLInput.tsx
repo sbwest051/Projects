@@ -2,6 +2,7 @@ import "../styles/main.css";
 import { Dispatch, SetStateAction, useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { QueryInput } from "./QueryInput";
+import {constructJSON, Source, SourceData} from "./frontendJSON"
 
 
 /**
@@ -52,7 +53,13 @@ export function REPLInput(props: REPLInputProps) {
     // inputValues.forEach((value, index) => {
      //list of lists with each inner list being a list that tells  [pdf type, title, link/filepath,] 
     const dataValues = inputValues.map((value, index) => [pdfTypes[index], titleValues[index], value])
-  // });
+    //setFiles(dataValues)
+    const validData: SourceData[] = dataValues
+  .filter(item => item.length === 3) as SourceData[];
+    const jsonStructure = constructJSON(validData);
+    console.log(jsonStructure)
+
+    //console.log(JSON.stringify(jsonStructure, null, 2));
   }
   // function handleAddInputProp() {
   //   //setFile([...inputProps, ""]);
