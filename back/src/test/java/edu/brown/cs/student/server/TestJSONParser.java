@@ -1,4 +1,4 @@
-package edu.brown.cs.student;
+package edu.brown.cs.student.server;
 
 import edu.brown.cs.student.main.records.maps.Feature;
 import edu.brown.cs.student.main.records.maps.FeatureCollection;

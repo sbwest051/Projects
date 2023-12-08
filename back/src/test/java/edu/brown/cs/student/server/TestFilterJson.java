@@ -1,17 +1,17 @@
-package edu.brown.cs.student;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package edu.brown.cs.student.server;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import edu.brown.cs.student.main.records.maps.Feature;
 import edu.brown.cs.student.main.records.maps.FeatureCollection;
 import edu.brown.cs.student.main.records.maps.geometry;
 import edu.brown.cs.student.main.records.maps.properties;
-import edu.brown.cs.student.main.server.handlers.GetJsonHandler;
+import edu.brown.cs.student.main.server.handlers.FilterJsonHandler;
 import edu.brown.cs.student.main.server.handlers.JSONParser;
 import edu.brown.cs.student.main.server.serializers.FeatureCollectionResponse;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.testng.Assert;
 import spark.Spark;
 
-public class TestGetJson {
+public class TestFilterJson {
 
   @BeforeAll
   public static void setup_before_everything() {
@@ -36,23 +36,21 @@ public class TestGetJson {
     Logger.getLogger("").setLevel(Level.WARNING); // empty name = root logger
   }
 
-
   @BeforeEach
   public void setup() throws IOException {
     JSONParser jsonParser = new JSONParser();
     jsonParser.fromJSON("data/test/TestFeatureCollection.json");
-    Spark.get("getjson", new GetJsonHandler(jsonParser.getFeatureCollection()));
+    Spark.get("filterjson", new FilterJsonHandler(jsonParser.getFeatureCollection()));
     Spark.init();
     Spark.awaitInitialization();
   }
-
   @AfterEach
   public void teardown() {
-    Spark.unmap("getjson");
+    Spark.unmap("filterjson");
     Spark.awaitStop();
   }
   @Test
-  public void testGetJson() throws IOException {
+  public void testSuccess() throws IOException {
     //Using mocked json
     List<List<List<List<Double>>>> coordinates = new ArrayList<>();
     List<Double> c1 = new ArrayList<>();
@@ -80,7 +78,36 @@ public class TestGetJson {
     List<Feature> featureList = new ArrayList<>();
     featureList.add(feature);
     FeatureCollection expectedFC = new FeatureCollection(featureList);
-    Assert.assertEquals(deserializeFCResponse("getjson").data(), expectedFC);
+    Assert.assertEquals(deserializeFCResponse("filterjson?minX=-86.756777&maxX=-86.756777&minY=33.497543&maxY=33.497543").data(), expectedFC);
+  }
+
+  @Test
+  public void testOutofBounds() throws IOException {
+    List<Feature> featureList = new ArrayList<>();
+    FeatureCollection expectedFC = new FeatureCollection(featureList);
+    Assert.assertEquals(deserializeFCResponse("filterjson?minX=0&maxX=1&minY=33.497543&maxY=33.497543").data(),
+        expectedFC);
+  }
+
+  @Test
+  public void testErrorResponses() throws IOException {
+    Assert.assertEquals(deserialize("filterjson").get("error_type"),"error_bad_request");
+    Assert.assertEquals(deserialize("filterjson").get("details"),
+        "At least one of the parameters (minX, minY, maxX, maxY)"
+        + " are missing.");
+
+    Assert.assertEquals(deserialize("filterjson?minX=").get("error_type"),
+        "error_bad_request");
+    Assert.assertEquals(deserialize("filterjson?minX=").get("details"),
+        "At least one of the parameters (minX, minY, maxX, maxY)"
+        + " are missing.");
+
+    Assert.assertEquals(deserialize("filterjson?minX=&maxX=&maxx=&maxY=&minY=").get("error_type"),
+        "error_bad_request");
+    Assert.assertEquals(deserialize("filterjson?minX=&maxX=&maxx=&maxY=&minY=")
+        .get("details"),"At least one of the parameters was not in the form of a double.");
+    Assert.assertEquals(deserialize("filterjson?minX=123&maxX=abcde&maxY=12&minY=33").get(
+        "details"),"At least one of the parameters was not in the form of a double.");
   }
   private static HttpURLConnection tryRequest(String apiCall) throws IOException {
     // Configure the connection (but don't actually send the request yet)
@@ -94,6 +121,17 @@ public class TestGetJson {
     clientConnection.connect();
     return clientConnection;
   }
+
+  private Map<String, Object> deserialize(String apiCall) throws IOException {
+    HttpURLConnection clientConnection = tryRequest(apiCall);
+    Assert.assertEquals(clientConnection.getResponseCode(), 200);
+    Moshi moshi = new Moshi.Builder().build();
+    Type mapType = Types.newParameterizedType(Map.class, String.class, Object.class);
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(mapType);
+    return adapter.fromJson(
+        new Scanner(clientConnection.getInputStream()).useDelimiter("\\A").next());
+  }
+
   private FeatureCollectionResponse deserializeFCResponse(String apiCall) throws IOException {
     HttpURLConnection clientConnection = tryRequest(apiCall);
     Assert.assertEquals(clientConnection.getResponseCode(), 200);

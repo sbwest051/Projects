@@ -16,7 +16,6 @@ public class Server {
 
   public Server() {
     int port = 4002;
-
     Spark.port(port);
 
     after(
