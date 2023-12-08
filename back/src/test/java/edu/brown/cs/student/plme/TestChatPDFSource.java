@@ -62,47 +62,118 @@ public class TestChatPDFSource {
     Spark.init();
     Spark.awaitInitialization();
 
-    // Notice this link alone leads to a 404... Why is that?
     System.out.println("Server started at http://localhost:" + port);
   }
 
+  @Test
+  public void testAddURL() {
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String url = "https://example.com";
+    try {
+      String sourceId = pdfSource.addURL(url);
+      Assert.assertNotNull(sourceId);
+      Assert.assertFalse(sourceId.isEmpty());
+    } catch (DatasourceException e) {
+      Assert.fail("Exception thrown: " + e.getMessage());
+    }
+  }
 
   @Test
-  public void sampleInput() throws IOException, FactoryFailureException {
-    Moshi moshi = new Moshi.Builder().build();
-    JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
-    InputFile file1 = new InputFile("sample pdf 1", "data/samplefilepath.pdf", null);
-    InputFile file2 = new InputFile("sample pdf 2", null, "www.woohoopdf.com/getpdf");
-    List<InputFile> list = new ArrayList<>();
-    list.add(file1);
-    list.add(file2);
-
-    List<String> keywordList = new ArrayList<>();
-    keywordList.add("keyword 1");
-    keywordList.add("keyword 2");
-    MDCInput listinput = new MDCInput("sample metadata column", "what is earth?", keywordList,
-        null);
-
-    Map<String, List<String>> map = new LinkedHashMap<>();
-    map.put("keyword", keywordList);
-    map.put("pretend this is the keyword for a different list", keywordList);
-
-    MDCInput mapinput = new MDCInput("sample metadata column 2", "what is not earth?", null, map);
-
-    List<MDCInput> inputs = new ArrayList<>();
-    inputs.add(listinput);
-    inputs.add(mapinput);
-    System.out.println(adapter.toJson(new PLMEInput("csv filepath", list, inputs)));
-
+  public void testAddFile() {
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String filePath = "data/allergy.pdf";
     try {
-      ChatPDFSource chatPDFSource = new ChatPDFSource();
-      String sourceId1 = chatPDFSource.addURL("https://www.africau.edu/images/default/sample.pdf");
-      String sourceId2 = chatPDFSource.addFile("data/allergy.pdf");
-      chatPDFSource.getContent(sourceId2, "Please explain how allergen uptake was tested with "
-          + "sources.");
+      String sourceId = pdfSource.addFile(filePath);
+      Assert.assertNotNull(sourceId);
+      Assert.assertFalse(sourceId.isEmpty());
     } catch (DatasourceException e) {
-      System.out.println("bruh");
+      Assert.fail("Exception thrown: " + e.getMessage());
     }
+  }
+
+  @Test
+  public void testGetContent() {
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String filePath = "data/allergy.pdf";
+    String question = "Who is the author of this paper?";
+    String result = "Claudia Kitzmueller";
+    try {
+      String sourceId = pdfSource.addFile(filePath);
+      String content = pdfSource.getContent(sourceId, question);
+      Assert.assertNotNull(content);
+      Assert.assertFalse(content.isEmpty());
+      Assert.assertTrue(content.contains(result));
+    } catch (DatasourceException | NullPointerException e) {
+      Assert.fail("Exception thrown: " + e.getMessage());
+    }
+  }
+
+  @Test
+  public void testGetMoreContent() {
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String filePath = "data/allergy.pdf";
+    String question = "What allergen did they test";
+    String result = "Bet v 1";
+    try {
+      String sourceId = pdfSource.addFile(filePath);
+      String content = pdfSource.getContent(sourceId, question);
+      Assert.assertNotNull(content);
+      Assert.assertFalse(content.isEmpty());
+      Assert.assertTrue(content.contains(result));
+    } catch (DatasourceException | NullPointerException e) {
+      Assert.fail("Exception thrown: " + e.getMessage());
+    }
+  }
+
+  @Test
+  public void addFileException() {
+    boolean exceptionThrown = false;
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String filePath = "fake-path.pdf";
+      try {
+        String sourceId = pdfSource.addFile(filePath);
+      } catch (DatasourceException e) {
+        exceptionThrown = true;
+      }
+      Assert.assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void sourceIDNull() {
+      boolean exceptionThrown = false;
+      ChatPDFSource pdfSource = new ChatPDFSource();
+      String question = "Who is the author of this paper?";
+      String result = "Claudia Kitzmueller";
+      try {
+        String sourceId = null;
+        String content = pdfSource.getContent(sourceId, question);
+        Assert.assertNotNull(content);
+        Assert.assertFalse(content.isEmpty());
+        Assert.assertTrue(content.contains(result));
+      } catch (NullPointerException | DatasourceException e) {
+        exceptionThrown = true;
+      }
+      Assert.assertTrue(exceptionThrown);
+    }
+
+  @Test
+  public void getContentException() {
+    boolean exceptionThrown = false;
+
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String filePath = "data/lol/allergy.pdf";
+    String question = "What allergen did they test";
+    String result = "Bet v 1";
+    try {
+      String sourceId = pdfSource.addFile(filePath);
+      String content = pdfSource.getContent(sourceId, question);
+      Assert.assertNotNull(content);
+      Assert.assertFalse(content.isEmpty());
+      Assert.assertTrue(content.contains(result));
+    } catch (DatasourceException e) {
+      exceptionThrown = true;
+    }
+    Assert.assertTrue(exceptionThrown);
   }
 
   @AfterEach
