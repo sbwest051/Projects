@@ -1,14 +1,12 @@
 package edu.brown.cs.student.main;
 
-import static spark.Spark.notFound;
-
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs.student.main.CSV.CSVData;
 import edu.brown.cs.student.main.CSV.Parser;
 import edu.brown.cs.student.main.CSV.creators.InputFileCreator;
-import edu.brown.cs.student.main.records.PLME.request.InputFile;
 import edu.brown.cs.student.main.records.PLME.MDCInput;
+import edu.brown.cs.student.main.records.PLME.request.InputFile;
 import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
 import edu.brown.cs.student.main.records.PLME.response.File;
 import edu.brown.cs.student.main.records.PLME.response.Metadata;
@@ -21,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import spark.Request;
 import spark.Response;
@@ -69,9 +66,10 @@ public class MetadataHandler implements Route {
       try {
         CSVData<InputFile> fileCSV = new CSVData<>(new Parser<InputFile>());
         fileCSV.setCSV(new FileReader(input.filepath()), new InputFileCreator());
-        return this.compile(fileCSV.getCSV(),input.columns()).serialize();
+        return this.compile(fileCSV.getCSV(), input.columns()).serialize();
       } catch (IOException | FactoryFailureException e) {
-        throw new RuntimeException(e);
+        return new ServerFailureResponse("error_bad_request",
+            "csv not formatted correctly." + e.getMessage()).serialize();
       }
     }
   }

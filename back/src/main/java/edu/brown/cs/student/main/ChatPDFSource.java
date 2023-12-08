@@ -57,6 +57,9 @@ public class ChatPDFSource implements PDFSource {
   @Override
   public String addFile(String filepath) throws DatasourceException {
     try {
+      if (!filepath.startsWith("data/")){
+        throw new DatasourceException("File must be in the data folder.");
+      }
       HttpPost request = new HttpPost("https://api.chatpdf.com/v1/sources/add-file");
       request.addHeader("x-api-key", key.API_KEY);
 
