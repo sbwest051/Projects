@@ -1,4 +1,4 @@
-package edu.brown.cs.student;
+package edu.brown.cs.student.server;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -7,8 +7,8 @@ import edu.brown.cs.student.main.records.maps.Feature;
 import edu.brown.cs.student.main.records.maps.FeatureCollection;
 import edu.brown.cs.student.main.records.maps.geometry;
 import edu.brown.cs.student.main.records.maps.properties;
-import edu.brown.cs.student.main.server.handlers.FilterJsonHandler;
 import edu.brown.cs.student.main.server.handlers.JSONParser;
+import edu.brown.cs.student.main.server.handlers.SearchJsonHandler;
 import edu.brown.cs.student.main.server.serializers.FeatureCollectionResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.testng.Assert;
 import spark.Spark;
 
-public class TestFilterJson {
+public class TestSearchJson {
 
   @BeforeAll
   public static void setup_before_everything() {
@@ -36,17 +36,18 @@ public class TestFilterJson {
     Logger.getLogger("").setLevel(Level.WARNING); // empty name = root logger
   }
 
+
   @BeforeEach
   public void setup() throws IOException {
     JSONParser jsonParser = new JSONParser();
     jsonParser.fromJSON("data/test/TestFeatureCollection.json");
-    Spark.get("filterjson", new FilterJsonHandler(jsonParser.getFeatureCollection()));
+    Spark.get("searchjson", new SearchJsonHandler(jsonParser.getFeatureCollection()));
     Spark.init();
     Spark.awaitInitialization();
   }
   @AfterEach
   public void teardown() {
-    Spark.unmap("filterjson");
+    Spark.unmap("getjson");
     Spark.awaitStop();
   }
   @Test
@@ -78,36 +79,36 @@ public class TestFilterJson {
     List<Feature> featureList = new ArrayList<>();
     featureList.add(feature);
     FeatureCollection expectedFC = new FeatureCollection(featureList);
-    Assert.assertEquals(deserializeFCResponse("filterjson?minX=-86.756777&maxX=-86.756777&minY=33.497543&maxY=33.497543").data(), expectedFC);
-  }
-
-  @Test
-  public void testOutofBounds() throws IOException {
-    List<Feature> featureList = new ArrayList<>();
-    FeatureCollection expectedFC = new FeatureCollection(featureList);
-    Assert.assertEquals(deserializeFCResponse("filterjson?minX=0&maxX=1&minY=33.497543&maxY=33.497543").data(),
-        expectedFC);
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").data(), expectedFC);
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").input().get("avgX"),
+        -86.756777);
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").input().get("avgY"),
+        33.497543);
+    List<String> queryList = new ArrayList<>();
+    queryList.add("outside");
+    queryList.add("outside");
+    queryList.add("outside");
+    queryList.add("outside");
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=outside").input().get(
+        "input_history"), queryList);
+    Assert.assertTrue(deserializeFCResponse("searchjson?keyword=abcdefgh").data().features().isEmpty());
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=abcdefgh").input().get("avgX"),
+        0.0);
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=abcdefgh").input().get("avgY"),
+        0.0);
+    queryList.add("abcdefgh");
+    queryList.add("abcdefgh");
+    queryList.add("abcdefgh");
+    queryList.add("abcdefgh");
+    Assert.assertEquals(deserializeFCResponse("searchjson?keyword=abcdefgh").input().get(
+        "input_history"),
+        queryList);
   }
 
   @Test
   public void testErrorResponses() throws IOException {
-    Assert.assertEquals(deserialize("filterjson").get("error_type"),"error_bad_request");
-    Assert.assertEquals(deserialize("filterjson").get("details"),
-        "At least one of the parameters (minX, minY, maxX, maxY)"
-        + " are missing.");
-
-    Assert.assertEquals(deserialize("filterjson?minX=").get("error_type"),
-        "error_bad_request");
-    Assert.assertEquals(deserialize("filterjson?minX=").get("details"),
-        "At least one of the parameters (minX, minY, maxX, maxY)"
-        + " are missing.");
-
-    Assert.assertEquals(deserialize("filterjson?minX=&maxX=&maxx=&maxY=&minY=").get("error_type"),
-        "error_bad_request");
-    Assert.assertEquals(deserialize("filterjson?minX=&maxX=&maxx=&maxY=&minY=")
-        .get("details"),"At least one of the parameters was not in the form of a double.");
-    Assert.assertEquals(deserialize("filterjson?minX=123&maxX=abcde&maxY=12&minY=33").get(
-        "details"),"At least one of the parameters was not in the form of a double.");
+    Assert.assertEquals(deserialize("searchjson").get("error_type"),"error_bad_request");
+    Assert.assertEquals(deserialize("searchjson").get("details"),"Keyword was not entered.");
   }
   private static HttpURLConnection tryRequest(String apiCall) throws IOException {
     // Configure the connection (but don't actually send the request yet)
