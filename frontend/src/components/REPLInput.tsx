@@ -58,6 +58,16 @@ export function REPLInput(props: REPLInputProps) {
   .filter(item => item.length === 3) as SourceData[];
     const jsonStructure = constructJSON(validData);
     console.log(jsonStructure)
+  fetch('http://localhost:4002/plme', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(jsonStructure),
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
 
     //console.log(JSON.stringify(jsonStructure, null, 2));
   }

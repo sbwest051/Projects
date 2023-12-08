@@ -28,6 +28,6 @@ export function constructJSON(dataValues: SourceData[]): { files: Source[] } {
       ? { title, filepath: linkOrPath }
       : { title, url: linkOrPath };
   });
-    // Construct the JSON structure with the files array.
+    // Make JSON structure with the files array.
   return { files };
 }
