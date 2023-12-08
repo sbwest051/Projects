@@ -1,1 +1,4 @@
 /src/main/java/edu/brown/cs/student/main/priv
+
+frontend/node_modules
+back/target
