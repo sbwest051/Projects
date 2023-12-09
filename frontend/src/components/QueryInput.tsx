@@ -41,7 +41,7 @@ export function QueryInput({
       type="text"
       className="repl-command-box"
       value={value}
-      placeholder="Enter question of query here!"
+      placeholder="enter keyword list or map "
       onChange={(ev) => setValue(ev.target.value)}
       aria-label={ariaLabel}
       aria-description="enter keyword list or map "
