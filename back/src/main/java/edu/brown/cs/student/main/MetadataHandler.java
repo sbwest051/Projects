@@ -55,7 +55,7 @@ public class MetadataHandler implements Route {
           + "data with keywords.").serialize();
     }
 
-    if (checkColumnValidity(input.columns())){
+    if (!checkColumnValidity(input.columns())){
       return new ServerFailureResponse("error_bad_request", "Please limit your questions to a "
           + "maximum of 2500 characters.").serialize();
     }

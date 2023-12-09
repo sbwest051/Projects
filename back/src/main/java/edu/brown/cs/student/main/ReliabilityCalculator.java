@@ -12,7 +12,10 @@ public class ReliabilityCalculator {
   public Map<String, Double[]> getReliabilityScore(String content, List<String> keywordList){
     List<String> contentList = List.of(content.split(regexSplitContent.pattern()));
     for (String word : keywordList){
-
+      List<String> multiWordList = List.of(word.split(regexSplitContent.pattern()));
+      for (String subWord : multiWordList){
+        return null;
+      }
     }
     return null;
   }
