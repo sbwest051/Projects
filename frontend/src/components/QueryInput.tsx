@@ -3,26 +3,35 @@ import { Dispatch, SetStateAction } from "react";
 
 // uses value state variable to update the command string in the REPL input class
 interface QueryInputProps {
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
+  queryTitle: string;
+  setQueryTitle: Dispatch<SetStateAction<string>>;
+  question: string;
+  setQuestion: Dispatch<SetStateAction<string>>;
+  keywords: string;
+  setKeywords: Dispatch<SetStateAction<string>>;
   ariaLabel: string;
   onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 // function which updates the command string from the text box input
 export function QueryInput({
-  value,
-  setValue,
+  queryTitle,
+  setQueryTitle,
+  question,
+  setQuestion,
+  keywords,
+  setKeywords,
   ariaLabel,
+
   onKeyPress,
 }: QueryInputProps) {
   return (
     <><input
       type="text"
       className="repl-command-box"
-      value={value}
+      value={queryTitle}
       placeholder="Enter title of query here!"
-      onChange={(ev) => setValue(ev.target.value)}
+      onChange={(ev) => setQueryTitle(ev.target.value)}
       aria-label={ariaLabel}
       aria-description="where to put your query "
       //onKeyPress={onKeyPress}
@@ -30,9 +39,9 @@ export function QueryInput({
     ></input><input
       type="text"
       className="repl-command-box"
-      value={value}
+      value={question}
       placeholder="Enter question of query here!"
-      onChange={(ev) => setValue(ev.target.value)}
+      onChange={(ev) => setQuestion(ev.target.value)}
       aria-label={ariaLabel}
       aria-description="where to put your query "
       //onKeyPress={onKeyPress}
@@ -40,9 +49,9 @@ export function QueryInput({
     ></input><input
       type="text"
       className="repl-command-box"
-      value={value}
-      placeholder="enter keyword list or map "
-      onChange={(ev) => setValue(ev.target.value)}
+      value={keywords}
+      placeholder="Enter keyword list or map "
+      onChange={(ev) => setKeywords(ev.target.value)}
       aria-label={ariaLabel}
       aria-description="enter keyword list or map "
       //onKeyPress={onKeyPress}

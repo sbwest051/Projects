@@ -35,11 +35,16 @@ export function REPLInput(props: REPLInputProps) {
   // Manages the contents of the input box
   const [commandString, setCommandString] = useState<string>("");
   const [count, setCount] = useState<number>(0);
-  const [files, setFiles] = useState<string[]>([]);
-  const [inputValues, setInputValues] = useState<string[]>([""]);
+  //const [files, setFiles] = useState<string[]>([]);
+  const [inputValues, setInputValues] = useState<string[]>([""])
+  // title inpute
   const [titleValues, setTitleValues] = useState<string[]>([""]);
   // keeps track of whether a pdf is a link or a filepath
   const [pdfTypes, setPdfTypes] = useState<string[]>(["filepath"]); 
+  const [queryTitle, setQueryTitle] = useState("");
+  const [question, setQuestion] = useState("");
+  const [keywords, setKeywords] = useState("");
+
 
 
   // This function is triggered when the submit button is clicked.
@@ -69,11 +74,10 @@ export function REPLInput(props: REPLInputProps) {
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
 
+
     //console.log(JSON.stringify(jsonStructure, null, 2));
   }
-  // function handleAddInputProp() {
-  //   //setFile([...inputProps, ""]);
-  // }
+
   function handleAddInputProp() {
     setInputValues([...inputValues, ""]);
     setTitleValues([...titleValues, ""]);
@@ -83,19 +87,6 @@ export function REPLInput(props: REPLInputProps) {
   }
   return (
     <div className="repl-input">
-      {/* <fieldset> */}
-      {/* <legend>Enter a command:</legend> */}
-      <QueryInput
-        value={commandString}
-        setValue={setCommandString}
-        ariaLabel={"Query input"}
-        onKeyPress={(e) => {
-        if (e.key === "Enter") {
-              handleSubmit(commandString);
-            }
-          }}
-      />
-      <> </>
 
       {inputValues.map((value, index) => (
         <ControlledInput
@@ -126,16 +117,15 @@ export function REPLInput(props: REPLInputProps) {
       ))}
       <button onClick={handleAddInputProp}> add new pdf </button>
 
-
-            <QueryInput
-        value={commandString}
-        setValue={setCommandString}
-        ariaLabel={"Query input"}
-        onKeyPress={(e) => {
-        if (e.key === "Enter") {
-              handleSubmit(commandString);
-            }
-          }}
+      <h3>Enter Query information in these boxes</h3>
+                <QueryInput
+        queryTitle={queryTitle}
+        setQueryTitle={setQueryTitle}
+        question={question}
+        setQuestion={setQuestion}
+        keywords={keywords}
+        setKeywords={setKeywords}
+        ariaLabel="Query Input"
       />
             <button aria-label="button" onClick={() => handleSubmit(commandString)}>
         {/*This is where we will asign which function and/or code to use*/}
