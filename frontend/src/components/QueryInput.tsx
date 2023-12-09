@@ -17,16 +17,36 @@ export function QueryInput({
   onKeyPress,
 }: QueryInputProps) {
   return (
-    <input
+    <><input
       type="text"
       className="repl-command-box"
       value={value}
-      placeholder="Enter query here!"
+      placeholder="Enter title of query here!"
       onChange={(ev) => setValue(ev.target.value)}
       aria-label={ariaLabel}
       aria-description="where to put your query "
       //onKeyPress={onKeyPress}
       autoFocus
-    ></input>
+    ></input><input
+      type="text"
+      className="repl-command-box"
+      value={value}
+      placeholder="Enter question of query here!"
+      onChange={(ev) => setValue(ev.target.value)}
+      aria-label={ariaLabel}
+      aria-description="where to put your query "
+      //onKeyPress={onKeyPress}
+      autoFocus
+    ></input><input
+      type="text"
+      className="repl-command-box"
+      value={value}
+      placeholder="Enter question of query here!"
+      onChange={(ev) => setValue(ev.target.value)}
+      aria-label={ariaLabel}
+      aria-description="enter keyword list or map "
+      //onKeyPress={onKeyPress}
+      autoFocus
+    ></input></>
   );
 }

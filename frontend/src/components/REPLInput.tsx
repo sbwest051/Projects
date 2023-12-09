@@ -124,12 +124,24 @@ export function REPLInput(props: REPLInputProps) {
           // setFiles={props.setFiles}
         />
       ))}
+      <button onClick={handleAddInputProp}> add new pdf </button>
 
-      <button aria-label="button" onClick={() => handleSubmit(commandString)}>
+
+            <QueryInput
+        value={commandString}
+        setValue={setCommandString}
+        ariaLabel={"Query input"}
+        onKeyPress={(e) => {
+        if (e.key === "Enter") {
+              handleSubmit(commandString);
+            }
+          }}
+      />
+            <button aria-label="button" onClick={() => handleSubmit(commandString)}>
         {/*This is where we will asign which function and/or code to use*/}
         "Submit"
       </button>
-      <button onClick={handleAddInputProp}> add new pdf </button>
+      
     </div>
   );
 }
