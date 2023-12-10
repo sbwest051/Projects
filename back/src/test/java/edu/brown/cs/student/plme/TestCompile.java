@@ -77,10 +77,11 @@ public class TestCompile {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
     InputFile file1 = new InputFile("Allergy Paper", "data/allergy.pdf", null);
-    //InputFile file2 = new InputFile("PubMed Allergy Paper", null, "https://www.ncbi.nlm.nih"
-    //    + ".gov/pmc/articles/PMC3539924/pdf/2045-7022-2-21.pdf");
+    InputFile file2 = new InputFile("PubMed Allergy Paper", null, "https://www.ncbi.nlm.nih"
+        + ".gov/pmc/articles/PMC3539924/pdf/2045-7022-2-21.pdf");
     List<InputFile> list = new ArrayList<>();
     list.add(file1);
+    list.add(file2);
 
     List<String> keywordList = new ArrayList<>();
     keywordList.add("allergies");
@@ -183,7 +184,7 @@ public class TestCompile {
 
     fl.add(f1);
     fl.add(f2);
-    MetadataTable mt = new MetadataTable(mdcl,fl);
+    MetadataTable mt = new MetadataTable("success", mdcl, fl,null);
     System.out.println(mt.serialize());
   }
 
