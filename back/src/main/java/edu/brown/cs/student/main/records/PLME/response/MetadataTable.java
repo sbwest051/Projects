@@ -7,7 +7,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
-public record MetadataTable(List<MDCInput> headers, List<File> fileList) {
+public record MetadataTable(String result, List<MDCInput> headers, List<File> fileList,
+                            String message) {
 
   public String serialize(){
     try {
