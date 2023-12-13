@@ -9,6 +9,8 @@ interface QueryInputProps {
   setQuestion: Dispatch<SetStateAction<string>>;
   keywords: string;
   setKeywords: Dispatch<SetStateAction<string>>;
+  // score: number;
+  // setScore: Dispatch<SetStateAction<number>>;
   ariaLabel: string;
   onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
@@ -21,6 +23,8 @@ export function QueryInput({
   setQuestion,
   keywords,
   setKeywords,
+  // score,
+  // setScore,
   ariaLabel,
 
   onKeyPress,
@@ -56,6 +60,19 @@ export function QueryInput({
       aria-description="enter keyword list or map "
       //onKeyPress={onKeyPress}
       autoFocus
-    ></input></>
+    ></input>
+    {/* <input
+      type="text"
+      className="repl-command-box"
+      // value={score}
+      placeholder="Enter minimum reliability score"
+      onChange={(ev) => setScore(Number(ev.target.value))} 
+      // ^^ maybe introduce error checking function to make sure
+      aria-label={ariaLabel}
+      aria-description="Where to enter minimum reliablity score "
+      //onKeyPress={onKeyPress}
+      autoFocus
+    ></input> */}
+    </>
   );
 }

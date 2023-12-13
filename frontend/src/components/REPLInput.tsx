@@ -44,32 +44,36 @@ export function REPLInput(props: REPLInputProps) {
   const [queryTitle, setQueryTitle] = useState("");
   const [question, setQuestion] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [score, setScore] = useState("");
 
 
 
   // This function is triggered when the submit button is clicked.
   function handleSubmit(commandString: string) {
-    setCount(count + 1);
-    setPdfTypes([...pdfTypes,props.pdfType ]) //check to see if this line is necessary 
+
+    //setPdfTypes([...pdfTypes,props.pdfType ]) //check to see if this line is necessary 
     console.log("Selected PDF Types:", pdfTypes);
-    //TODO: Add functionality to pass to backend handler
 
 
     // inputValues.forEach((value, index) => {
      //list of lists with each inner list being a list that tells  [pdf type, title, link/filepath,] 
     const dataValues = inputValues.map((value, index) => [pdfTypes[index], titleValues[index], value])
     //setFiles(dataValues)
+
+
     const validData: SourceData[] = dataValues
   .filter(item => item.length === 3) as SourceData[];
-    const jsonStructure = constructJSON(validData);
-    console.log(jsonStructure)
+  const jsonStructure = constructJSON(validData, queryTitle, question, keywords);
+  console.log(jsonStructure);
+
+
   fetch('http://localhost:4002/plme', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify(jsonStructure),
-})
+  })
   .then(response => response.json())
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
@@ -125,12 +129,12 @@ export function REPLInput(props: REPLInputProps) {
         setQuestion={setQuestion}
         keywords={keywords}
         setKeywords={setKeywords}
+        // score = {Number(score)}
+        // setScore= {setScore}
         ariaLabel="Query Input"
       />
-            <button aria-label="button" onClick={() => handleSubmit(commandString)}>
-        {/*This is where we will asign which function and/or code to use*/}
-        "Submit"
-      </button>
+      <button aria-label="manual submit button" onClick={() => handleSubmit(commandString)}>
+        Submit </button>
       
     </div>
   );
