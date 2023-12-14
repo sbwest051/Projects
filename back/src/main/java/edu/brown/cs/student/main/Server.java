@@ -3,6 +3,7 @@ package edu.brown.cs.student.main;
 import static spark.Spark.after;
 
 import spark.Spark;
+import static spark.Spark.options;
 
 /**
  * Top-level class for this demo. Contains the main() method which starts Spark and runs the various
@@ -18,13 +19,38 @@ public class Server {
     int port = 4002;
     Spark.port(port);
 
-    after(
-        (request, response) -> {
-          response.header("Access-Control-Allow-Origin", "*");
-          response.header("Access-Control-Allow-Methods", "*");
-        });
+      options("/*", (request, response) -> {
+          String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+          if (accessControlRequestHeaders != null) {
+              response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+          }
 
-    Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
+          String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+          if (accessControlRequestMethod != null) {
+              response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+          }
+
+          return "OK";
+      });
+
+      after((request, response) -> {
+          response.header("Access-Control-Allow-Origin", "*");
+          response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+          response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
+      });
+
+      Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
+
+//start
+//    after(
+//        (request, response) -> {
+//          response.header("Access-Control-Allow-Origin", "*");
+//          response.header("Access-Control-Allow-Methods", "*");
+//        });
+//
+//    Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
+
+      //end of old code
 
     // Setting up the handler for the GET /order and /mock endpoints
 

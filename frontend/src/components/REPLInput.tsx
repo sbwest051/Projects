@@ -65,22 +65,34 @@ export function REPLInput(props: REPLInputProps) {
   .filter(item => item.length === 3) as SourceData[];
   const jsonStructure = constructJSON(validData, queryTitle, question, keywords);
   console.log(jsonStructure);
+  console.log(JSON.stringify(jsonStructure));
 
 
-  fetch('http://localhost:4002/plme', {
+fetch('http://localhost:4002/plme', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify(jsonStructure),
-  })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-
-
-    //console.log(JSON.stringify(jsonStructure, null, 2));
+  
+})
+.then(response => {
+  // Check if the response is successful
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
   }
+  return response.json();
+})
+.then(data => {
+  // Log the data received from the server
+  console.log(data);
+})
+.catch(error => {
+  // Log any errors encountered during the fetch
+  console.error('Error:', error);
+});
+  }
+
 
   function handleAddInputProp() {
     setInputValues([...inputValues, ""]);
