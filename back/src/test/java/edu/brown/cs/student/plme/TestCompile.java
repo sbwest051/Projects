@@ -137,6 +137,7 @@ public class TestCompile {
     Assert.assertTrue(jsonData.contains("No such file or directory"));
   }
 
+  //TODO: get URL shit working
   @Test
   public void invalidURLPath() throws IOException {
     Moshi moshi = new Moshi.Builder().build();
@@ -204,8 +205,6 @@ public class TestCompile {
     Assert.assertTrue(jsonData.contains("Input is missing one or more parameters"));
   }
 
-
-  // TODO: should this return an error instead??
   @Test
   public void emptyInputs() throws IOException {
     Moshi moshi = new Moshi.Builder().build();
@@ -216,7 +215,7 @@ public class TestCompile {
     System.out.println(this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs))).serialize());
 
     String jsonData = (this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs))).serialize());
-    Assert.assertTrue(jsonData.contains("success"));
+    Assert.assertTrue(jsonData.contains("Input is missing one or more parameters."));
   }
 
   @Test
@@ -261,8 +260,6 @@ public class TestCompile {
   // TODO: figure out why this is failing
   @Test
   public void NoPDFAttached() throws IOException {
-    boolean exceptionThrown = false;
-
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
     InputFile file1 = new InputFile("Allergy Paper", null, null);
@@ -277,13 +274,11 @@ public class TestCompile {
     List<MDCInput> inputs = new ArrayList<>();
     inputs.add(listinput);
 
-    try {
     System.out.println(adapter.toJson(new PLMEInput(null, list, inputs)));
-    System.out.println(this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs))).serialize());}
-    catch (Exception e ) {
-      exceptionThrown = true;
-    }
-    Assert.assertTrue(exceptionThrown);
+    System.out.println(this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs))).serialize());
+
+    String jsonData = (this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs))).serialize());
+    Assert.assertTrue(jsonData.contains("Input is missing one or more parameters"));
   }
 
   @Test

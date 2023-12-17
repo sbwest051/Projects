@@ -85,20 +85,23 @@ public class MetadataHandler implements Route {
   }
 
   private boolean checkEmptyInput(@NotNull PLMEInput input){
-    if ((input.filepath() == null || input.filepath().isEmpty())
-            && (this.checkEmptyFiles(input.files()))
-            && (input.columns() == null || input.columns().isEmpty())){
+    if (
+        (input.filepath() == null || input.filepath().isEmpty())
+        && (!this.checkEmptyFiles(input.files()))
+            || (input.columns() == null || input.columns().isEmpty())
+    ){
       return true;
     }
-    for (MDCInput column : input.columns()) {
-      if ((column.title() == null || column.title().isEmpty())
-      || (column.question() == null || column.question().isEmpty())
-      || ((column.keywordMap() == null || column.keywordMap().isEmpty())
-          && (column.keywordList() == null || column.keywordList().isEmpty()))){
-        return true;
-      }
+      for (MDCInput column : input.columns()) {
+        if ((column.title() == null || column.title().isEmpty())
+            || (column.question() == null || column.question().isEmpty())
+            || ((column.keywordMap() == null || column.keywordMap().isEmpty())
+            && (column.keywordList() == null || column.keywordList().isEmpty()))) {
+          return true;
+        }
     }
     return false;
+
   }
 
   private boolean checkEmptyFiles(List<InputFile> files){
@@ -106,8 +109,8 @@ public class MetadataHandler implements Route {
       return false;
     }
     for (InputFile file : files) {
-      boolean filepath = file.filepath() == null || file.filepath().isEmpty();
-      boolean url = file.url() == null || file.url().isEmpty();
+      boolean filepath = (file.filepath() == null || file.filepath().isEmpty());
+      boolean url = (file.url() == null || file.url().isEmpty());
       if (filepath && url) {
         return false;
       }
