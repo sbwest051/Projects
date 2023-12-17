@@ -32,7 +32,7 @@ export function constructJSON(dataValues: SourceData[], queryTitle: string, ques
 
   const keywordsArray = keywords.split(",");
   const columnKeywordsData = !keywordsArray[0].includes(":")
-    ? { keywordList: keywords.split(",") }
+    ? {keywordList: keywords.split(",").map(keyword => keyword.trim())}
     : { keywordMap: { /* figure out how to construct */ } };
 
   const newColumn = {

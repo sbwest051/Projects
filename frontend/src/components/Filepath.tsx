@@ -21,6 +21,15 @@ export function Filepath({
 }: FilepathProps) {
 
     function handleFileSubmit() {
+      const jsonStructure = { filepath: value };
+      fetch('http://localhost:4002/plme', {
+      method: 'POST',
+      headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(jsonStructure),
+  
+})
     console.log(value)
 
   }
@@ -29,10 +38,10 @@ export function Filepath({
           type="text"
           className="repl-command-box"
           value={value}
-          placeholder="Enter command here!"
+          placeholder="Enter filepath here!"
           onChange={(ev) => setValue(ev.target.value)}
           aria-label={ariaLabel}
-          aria-description="where to put your comma"
+          aria-description="where to put your file path"
           onKeyPress={onKeyPress}
           autoFocus
       ></input><button aria-label="manual submit button" onClick={() => handleFileSubmit()}>
