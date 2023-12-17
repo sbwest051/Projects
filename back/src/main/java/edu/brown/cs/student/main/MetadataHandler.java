@@ -127,37 +127,30 @@ public class MetadataHandler implements Route {
     return true;
   }
 
+
   @NotNull
   private MetadataTable compile(List<InputFile> files, List<MDCInput> columns){
     List<File> fileList = new ArrayList<>();
+    ReliabilityCalculator raCalc = new ReliabilityCalculator();
     RelevanceCalculator rvCalc = new RelevanceCalculator();
     Map<MDCInput, RScores> rScoreMap = new HashMap<>();
 
     for (InputFile file : files){
-      String result = "success";
-      List<Metadata> metadataList = new ArrayList<>();
+      String fileResult = "success";
 
       // Attempts to get sourceID for file based on the path to pdf.
       // Will also attempt to read PDF now to get relevance score later.
       String sourceId = null;
-      String pdfContent = null;
-      String pdfResult = "error";
       try {
-        if (file.url() == null || file.url().isEmpty()) {
-          sourceId = this.source.addFile(file.filepath());
-        } else {
-          sourceId = this.source.addURL(file.url());
-        }
-        if (sourceId == null){
-          throw new DatasourceException("SourceId could not be made for the file.");
-        }
+        sourceId = this.getSourceID(file);
       } catch (DatasourceException e) {
-          result = "error";
-          File outputFile = new File(result, file.filepath(), file.url(), file.title(), null,
-              e.getMessage());
-          fileList.add(outputFile);
+          fileResult = "error";
+          fileList.add(new File(fileResult, file.filepath(), file.url(), file.title(), null,
+              e.getMessage()));
       }
 
+      String pdfContent = null;
+      String pdfResult;
       // Attempts to read the file for relevance score
       try {
         if (file.url() == null || file.url().isEmpty()) {
@@ -175,66 +168,100 @@ public class MetadataHandler implements Route {
         pdfResult = "error";
       }
 
-      if (result.equals("success")){
-        String subresult = "success";
-        String content = null;
+      // If SourceID was successfully made, attempts to obtain the metadata.
+      List<Metadata> metadataList = new ArrayList<>();
+      if (fileResult.equals("success")){
+        String mdResult = "success";
+        String rawResponse = null;
 
-        // If SourceID was successfully made, attempts to obtain the metadata.
         for (MDCInput column : columns){
           Metadata metadata = null;
 
           // Queries ChatPDF
           try {
-            content = this.source.getContent(sourceId, column.question());
+            rawResponse = this.source.getContent(sourceId, column.question());
           } catch (DatasourceException e) {
-            subresult = "error";
-            metadata = new Metadata(subresult, null, null, e.getMessage());
+            mdResult = "error";
+            metadata = new Metadata(mdResult, null, null, e.getMessage());
           }
 
           // If ChatPDF successfully responds, gets the reliability score and tf scores and stores
           // it in a temporary data structure. idf scores are computed after all documents are run.
-          String message = null;
-          Map<String, Double> reliability = null;
-          ReliabilityCalculator reliabilityCalc = new ReliabilityCalculator();
-          if (subresult.equals("success")){
-            if (column.keywordList() == null || column.keywordList().isEmpty()){
-              reliability = reliabilityCalc.getReliabilityScore(content,column.keywordMap());
-              Map<String, Map<String, Double>> tfMap = null;
-              if (pdfResult.equals("success")){
-                try {
-                  tfMap = rvCalc.calculateTFMap(column,pdfContent);
-                } catch (DatasourceException e) {
-                  pdfResult = "error";
-                  message = e.getMessage();
-                }
-              }
-              rScoreMap.put(column, new RScores(pdfResult,reliability,null, tfMap, message));
-            } else {
-              reliability = reliabilityCalc.getReliabilityScore(content,column.keywordList());
-              Map<String, Double> tfList = null;
-              if (pdfResult.equals("success")){
-                try {
-                  tfList = rvCalc.calculateTFList(column, pdfContent, column.keywordList());
-                } catch (DatasourceException e) {
-                  pdfResult = "error";
-                  message = e.getMessage();
-                }
-              }
-              rScoreMap.put(column, new RScores(pdfResult,reliability,tfList, null, message));
-            }
-            metadata = new Metadata(subresult, content, null, null);
+          if (mdResult.equals("success")){
+            rScoreMap.put(column, this.getRaTfScores(column, rawResponse, raCalc,
+                rvCalc, pdfContent, pdfResult));
+            metadata = new Metadata(mdResult, rawResponse, null, null);
           }
           metadataList.add(metadata);
         }
       }
-      File outputFile = new File(result, file.filepath(), file.url(), file.title(), metadataList,
+      File outputFile = new File(fileResult, file.filepath(), file.url(), file.title(), metadataList,
           null);
       fileList.add(outputFile);
     }
-    List<File> finalList = this.calculateRScores(columns, fileList,rScoreMap, rvCalc);
-    return new MetadataTable("success", columns, finalList, null);
+
+    return new MetadataTable("success", columns,
+        this.calculateRScores(columns, fileList,rScoreMap, rvCalc), null);
   }
 
+  private String getSourceID(InputFile file) throws DatasourceException {
+    String sourceId = null;
+    if (file.url() == null || file.url().isEmpty()) {
+      sourceId = this.source.addFile(file.filepath());
+    } else {
+      sourceId = this.source.addURL(file.url());
+    }
+    if (sourceId == null){
+      throw new DatasourceException("SourceId could not be made for the file.");
+    }
+    return sourceId;
+  }
+
+  public RScores getRaTfScores(MDCInput column, String rawResponse, ReliabilityCalculator raCalc,
+      RelevanceCalculator rvCalc, String pdfContent, String pdfResult){
+    // If: keyword map rScore calculating; else: keywordList
+    String errText = null;
+    Map<String, Double> raMap;
+    if (column.keywordList() == null || column.keywordList().isEmpty()){
+      raMap = raCalc.getReliabilityScore(rawResponse,column.keywordMap());
+
+      // To get term frequencies
+      Map<String, Map<String, Double>> tfMap = null;
+      if (pdfResult.equals("success")){
+        try {
+          tfMap = rvCalc.calculateTFMap(column,pdfContent);
+        } catch (DatasourceException e) {
+          pdfResult = "error";
+          errText = e.getMessage();
+        }
+      }
+      return new RScores(pdfResult, raMap,null, tfMap, errText);
+    } else {
+      raMap = raCalc.getReliabilityScore(rawResponse,column.keywordList());
+      Map<String, Double> tfList = null;
+
+      // To get term frequencies
+      if (pdfResult.equals("success")){
+        try {
+          tfList = rvCalc.calculateTFList(column, pdfContent, column.keywordList());
+        } catch (DatasourceException e) {
+          pdfResult = "error";
+          errText = e.getMessage();
+        }
+      }
+      return new RScores(pdfResult, raMap,tfList, null, errText);
+    }
+  }
+
+  /**
+   * Reloops into the FileList to add all of the rScores into the metadata, having the idf values
+   * completely calculated.
+   * @param columnList
+   * @param fileList
+   * @param rScoreMap
+   * @param rvCalc
+   * @return
+   */
   public List<File> calculateRScores(List<MDCInput> columnList, List<File> fileList,
       Map<MDCInput, RScores> rScoreMap, RelevanceCalculator rvCalc){
     for (File file: fileList) {
@@ -252,7 +279,9 @@ public class MetadataHandler implements Route {
               } else {
                 rvMap = rvCalc.getRelevanceScore(column, rScore.tfList());
               }
-            } catch (DatasourceException ignored){
+            } catch (DatasourceException e){
+              rScoreMap.replaceAll((col, score) -> new RScores("error", score.reliability(),
+                  null, null, e.getMessage()));
             }
 
             Map<String, Double[]> data = new HashMap<>();

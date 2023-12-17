@@ -4,19 +4,13 @@ import edu.brown.cs.student.main.records.PLME.MDCInput;
 import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.jetbrains.annotations.NotNull;
 
 public class RelevanceCalculator {
   private int count;
@@ -69,10 +63,6 @@ public class RelevanceCalculator {
   public Map<String, Double> getMapRelevanceScore(MDCInput column, Map<String,
       Map<String, Double>> termFrequencies)
       throws DatasourceException {
-    if (!this.idfMap.get(column).keySet().containsAll(termFrequencies.keySet())){
-      throw new DatasourceException("Keyword lists don't match. Relevance scores could not be "
-          + "calculated.");
-    }
     Map<String, Double> relevanceScores = new HashMap<>();
     for (String keyword : termFrequencies.keySet()){
       double maxTfIdf =
@@ -80,6 +70,7 @@ public class RelevanceCalculator {
           .mapToDouble(d -> d).max().orElse(0);
       relevanceScores.put(keyword, maxTfIdf);
     }
+    System.out.println(relevanceScores);
     return relevanceScores;
   }
 
