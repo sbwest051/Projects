@@ -128,6 +128,8 @@ public class MetadataHandler implements Route {
   @Contract("_, _ -> new")
   private MetadataTable compile(List<InputFile> files, List<MDCInput> columns){
     List<File> fileList = new ArrayList<>();
+    RelevanceCalculator relCalc = new RelevanceCalculator();
+
     for (InputFile file : files){
       String result = "success";
       List<Metadata> metadataList = new ArrayList<>();

@@ -25,7 +25,6 @@ public class ReliabilityCalculator {
 
   public Map<String, Double> getReliabilityScore(String content, List<String> keywordList) {
     List<String> contentList = parseContent(content);
-    System.out.println(contentList);
     Map<String, Double> rScores = new HashMap<>();
     for (String phrase : keywordList) {
       List<String> phraseList = List.of(phrase.split(" "));
@@ -58,21 +57,24 @@ public class ReliabilityCalculator {
   }
 
   @NotNull
-  private static List<String> parseContent(String content) {
+  public static List<String> parseContent(String content) {
     List<String> contentList = new ArrayList<>(List.of(content.split(" ")));
-    for (int i = 0; i < contentList.size(); i++) {
-      String word = contentList.get(i);
-      if((word.endsWith(".") || word.endsWith("!") || word.endsWith("?") || word.endsWith(":") ||
-          word.endsWith(",") || word.endsWith(";") || word.endsWith("\"") || word.endsWith(")") ||
-          word.endsWith("*")) && word.length() > 1) {
-        word = word.substring(0, word.length() - 1);
-      }
-      if((word.startsWith("(") || word.startsWith("\"")) && word.length() > 1){
-        word = word.substring(1);
-      }
-      contentList.set(i, word.toLowerCase());
+    return contentList.stream().map(word -> {
+      word = checkPunctuation(word);
+      return word.toLowerCase();}).toList();
+  }
+
+  @NotNull
+  public static String checkPunctuation(String word) {
+    if((word.endsWith(".") || word.endsWith("!") || word.endsWith("?") || word.endsWith(":") ||
+        word.endsWith(",") || word.endsWith(";") || word.endsWith("\"") || word.endsWith(")") ||
+        word.endsWith("*")) && word.length() > 1) {
+      word = word.substring(0, word.length() - 1);
     }
-    return contentList;
+    if((word.startsWith("(") || word.startsWith("\"")) && word.length() > 1){
+      word = word.substring(1);
+    }
+    return word;
   }
 
   private int getEditDistance(String keyword, String content) {
