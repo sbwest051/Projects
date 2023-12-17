@@ -137,7 +137,6 @@ public class TestCompile {
     Assert.assertTrue(jsonData.contains("No such file or directory"));
   }
 
-  //TODO: get URL shit working
   @Test
   public void invalidURLPath() throws IOException {
     Moshi moshi = new Moshi.Builder().build();
@@ -257,7 +256,6 @@ public class TestCompile {
     Assert.assertTrue(jsonData.contains("File must be in the data folder"));
   }
 
-  // TODO: figure out why this is failing
   @Test
   public void NoPDFAttached() throws IOException {
     Moshi moshi = new Moshi.Builder().build();

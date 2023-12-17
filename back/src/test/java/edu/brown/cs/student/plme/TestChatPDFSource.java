@@ -109,6 +109,25 @@ public class TestChatPDFSource {
   }
 
   @Test
+  public void testGetContentURL() {
+    ChatPDFSource pdfSource = new ChatPDFSource();
+    String url = "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3539924/pdf/2045-7022-2-21.pdf";
+    String question = "Who is the author of this paper?";
+    String result = "Claudia Kitzmueller";
+    try {
+      String sourceId = pdfSource.addURL(url);
+      System.out.println(sourceId);
+      String content = pdfSource.getContent(sourceId, question);
+      System.out.println(content);
+      Assert.assertNotNull(content);
+      Assert.assertFalse(content.isEmpty());
+      Assert.assertTrue(content.contains(result));
+    } catch (DatasourceException | NullPointerException e) {
+      Assert.fail("Exception thrown: " + e.getMessage());
+    }
+  }
+
+  @Test
   public void testGetMoreContent() {
     ChatPDFSource pdfSource = new ChatPDFSource();
     String filePath = "data/allergy.pdf";
