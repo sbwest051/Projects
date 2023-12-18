@@ -1,5 +1,6 @@
 import "../styles/main.css";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { QueryInput } from "./QueryInput";
 
 // uses value state variable to update the command string in the REPL input class
 interface FilepathProps {
@@ -22,17 +23,20 @@ export function Filepath({
 
     function handleFileSubmit() {
       const jsonStructure = { filepath: value };
-      fetch('http://localhost:4002/plme', {
+      fetch('http://localhost:4000/plme', {
       method: 'POST',
       headers: {
     'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(jsonStructure),
+      },
+       body: JSON.stringify(jsonStructure),
   
-})
+      })
     console.log(value)
 
-  }
+      }
+  const [queryTitle, setQueryTitle] = useState("");
+  const [question, setQuestion] = useState("");
+  const [keywords, setKeywords] = useState("");
   return (
     <><input
           type="text"
@@ -44,7 +48,21 @@ export function Filepath({
           aria-description="where to put your file path"
           onKeyPress={onKeyPress}
           autoFocus
-      ></input><button aria-label="manual submit button" onClick={() => handleFileSubmit()}>
+      ></input>
+            <h3>Enter Query information in these boxes</h3>
+                <QueryInput
+        queryTitle={queryTitle}
+        setQueryTitle={setQueryTitle}
+        question={question}
+        setQuestion={setQuestion}
+        keywords={keywords}
+        setKeywords={setKeywords}
+        // score = {Number(score)}
+        // setScore= {setScore}
+        ariaLabel="Query Input"
+      />
+      
+      <button aria-label="manual submit button" onClick={() => handleFileSubmit()}>
               Submit </button></>
     
   );

@@ -11,6 +11,7 @@ export default function REPL() {
   //const [isVerbose, setVerbose] = useState<boolean>(false);
   const [data, setData] = useState<string[][]>([]);
   const [count, setCount] = useState<number>(0);
+  const [tableData, setTableData] = useState<any>([]);
  // const [files, setFiles] = useState<string[]>([]);
 
   return (
@@ -18,12 +19,15 @@ export default function REPL() {
       <REPLHistory
         history={history}
         count={count}
+        tableData={tableData}
       />
       {/* <hr></hr> */}
       <REPLInput
         // files={files}
         history={history}
         setHistory={setHistory}
+        tableData={tableData}
+        setTableData={setTableData}
         //setFiles={setFiles}
         //data={data}
         setData={setData}

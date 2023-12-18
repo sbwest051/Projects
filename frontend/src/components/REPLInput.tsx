@@ -23,6 +23,8 @@ interface REPLInputProps {
   count: number;
   setData: Dispatch<SetStateAction<string[][]>>;
   pdfType: string;
+  tableData: any[];
+  setTableData: Dispatch<SetStateAction<any[]>>;
   //setMode:
 }
 /**
@@ -31,9 +33,7 @@ interface REPLInputProps {
  * @returns The input text box and submit button
  */
 export function REPLInput(props: REPLInputProps) {
-  // Remember: let React manage state in your webapp.
-  // Manages the contents of the input box
-  const [commandString, setCommandString] = useState<string>("");
+
   const [count, setCount] = useState<number>(0);
   //const [files, setFiles] = useState<string[]>([]);
   const [inputValues, setInputValues] = useState<string[]>([""])
@@ -45,11 +45,12 @@ export function REPLInput(props: REPLInputProps) {
   const [question, setQuestion] = useState("");
   const [keywords, setKeywords] = useState("");
   const [score, setScore] = useState("");
+  //const [tableData, setTableData] = useState([]);
 
 
 
   // This function is triggered when the submit button is clicked.
-  function handleSubmit(commandString: string) {
+  function handleSubmit() {
 
     //setPdfTypes([...pdfTypes,props.pdfType ]) //check to see if this line is necessary 
     console.log("Selected PDF Types:", pdfTypes);
@@ -68,7 +69,7 @@ export function REPLInput(props: REPLInputProps) {
   console.log(JSON.stringify(jsonStructure));
 
 
-fetch('http://localhost:4002/plme', {
+fetch('http://localhost:4000/plme', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -86,6 +87,7 @@ fetch('http://localhost:4002/plme', {
 .then(data => {
   // Log the data received from the server
   console.log(data);
+  props.setTableData(data.fileList);
 })
 .catch(error => {
   // Log any errors encountered during the fetch
@@ -145,7 +147,7 @@ fetch('http://localhost:4002/plme', {
         // setScore= {setScore}
         ariaLabel="Query Input"
       />
-      <button aria-label="manual submit button" onClick={() => handleSubmit(commandString)}>
+      <button aria-label="manual submit button" onClick={() => handleSubmit()}>
         Submit </button>
       
     </div>

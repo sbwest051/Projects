@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e742c7bf-548e-45cf-88ed-86ca41474cf0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/data/fullDownload.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/Filepath.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Filepath.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/frontendJSON.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/frontendJSON.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/REPLInput.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/REPLInput.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,21 +46,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/serenawest/Desktop/CS32/term-project-swest9-epark73-bwangenh",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/serenawest/Desktop/CS32/term-project-swest9-epark73-bwangenh&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="term-project-swest9-epark73-bwangenh" />
@@ -89,6 +90,9 @@
       <workItem from="1702584563205" duration="41000" />
       <workItem from="1702584615325" duration="14000" />
       <workItem from="1702585023231" duration="3235000" />
+      <workItem from="1702741717237" duration="132000" />
+      <workItem from="1702741881290" duration="1201000" />
+      <workItem from="1702846201363" duration="4170000" />
     </task>
     <servers />
   </component>

@@ -30,7 +30,7 @@ function App() {
                     <p>Instructions</p>
                     <p>Please choose how you would like to enter your query</p>
                     <button onClick={handleFileButton} >Enter query with file </button>
-                    <button onClick={handleManualButton}>Enter query manually 2</button>
+                    <button onClick={handleManualButton}>Enter query manually </button>
                 </div>
             </Popup>
             <p className="App-header">

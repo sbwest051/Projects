@@ -29,3 +29,11 @@ button{
     margin: auto;
     display: block;
 }
+
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid purple;
+}
