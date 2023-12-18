@@ -544,7 +544,6 @@ public class TestCompile {
     System.out.println(mt.serialize());
   }
 
-
   private static HttpURLConnection tryRequest(String body) throws IOException {
     // Configure the connection (but don't actually send the request yet)
     URL requestURL = new URL("http://localhost:" + Spark.port() + "/" + "plme");
