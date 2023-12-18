@@ -39,9 +39,14 @@ export function Filepath(props: FilepathProps) {
       console.log(data);
       if (data.result === "success") {
         props.setTableData(data.fileList);
-        setQuestion(question); // This seems redundant, as you are setting the same value
+        setQuestion(question); 
         setShowTable(true);
-      }
+      }else {
+        alert(data.message)
+      // If result is not success, set the error message and show the popup
+      // setErrorMessage(data.message || 'An error occurred.');
+      // setShowErrorPopup(true);
+    }
 
     })
     .catch(error => {

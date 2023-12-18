@@ -92,6 +92,11 @@ fetch('http://localhost:4000/plme', {
       props.setTableData(data.fileList);
       setQuestion(question); // Set the question state
       setShowTable(true); // Set the state to show the table
+    }{
+        alert(data.message)
+      // If result is not success, set the error message and show the popup
+      // setErrorMessage(data.message || 'An error occurred.');
+      // setShowErrorPopup(true);
     }
   // REPLView(data.fileList,question)
 })
