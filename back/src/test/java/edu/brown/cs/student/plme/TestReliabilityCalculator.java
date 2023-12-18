@@ -8,9 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class TestReliabilityCalculator {
-
   private final ReliabilityCalculator rc;
-
   public TestReliabilityCalculator(){
     this.rc = new ReliabilityCalculator();
   }

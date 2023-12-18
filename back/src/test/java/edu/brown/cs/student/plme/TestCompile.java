@@ -1,6 +1,7 @@
 package edu.brown.cs.student.plme;
 
 import static spark.Spark.after;
+import static spark.Spark.options;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -45,6 +46,25 @@ public class TestCompile {
     int port = 3234;
     Spark.port(port);
 
+    options("/*", (request, response) -> {
+      String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+      if (accessControlRequestHeaders != null) {
+        response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+      }
+
+      String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+      if (accessControlRequestMethod != null) {
+        response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+      }
+
+      return "OK";
+    });
+
+    after((request, response) -> {
+      response.header("Access-Control-Allow-Origin", "*");
+      response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
+    });
     after(
         (request, response) -> {
           response.header("Access-Control-Allow-Origin", "*");

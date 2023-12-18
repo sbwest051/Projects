@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import spark.Request;
 import spark.Response;
@@ -38,7 +39,7 @@ public class MetadataHandler implements Route {
   public String handle(Request request, Response response) throws Exception {
     if (!request.contentType().equals("application/json")){
       return new MetadataTable("error", null, null,
-          "Body must be of content-type" + "application/json.").serialize();
+          "Body must be of content-type application/json.").serialize();
     }
     PLMEInput input;
     try {
@@ -130,7 +131,6 @@ public class MetadataHandler implements Route {
     return true;
   }
 
-
   @NotNull
   private MetadataTable compile(List<InputFile> files, List<MDCInput> columns){
     List<File> fileList = new ArrayList<>();
@@ -140,6 +140,7 @@ public class MetadataHandler implements Route {
 
     for (InputFile file : files){
       String fileResult = "success";
+      File outputFile = null;
 
       // Attempts to get sourceID for file based on the path to pdf.
       String sourceId = null;
@@ -147,8 +148,8 @@ public class MetadataHandler implements Route {
         sourceId = this.getSourceID(file);
       } catch (DatasourceException e) {
           fileResult = "error";
-          fileList.add(new File(fileResult, file.filepath(), file.url(), file.title(), null,
-              e.getMessage()));
+          outputFile = new File(fileResult, file.filepath(), file.url(), file.title(), null,
+              e.getMessage());
       }
 
       String pdfContent = null;
@@ -196,9 +197,9 @@ public class MetadataHandler implements Route {
           }
           metadataList.add(metadata);
         }
+        outputFile = new File(fileResult, file.filepath(), file.url(), file.title(), metadataList,
+            null);
       }
-      File outputFile = new File(fileResult, file.filepath(), file.url(), file.title(), metadataList,
-          null);
       fileList.add(outputFile);
     }
     return new MetadataTable("success", columns,
@@ -206,7 +207,7 @@ public class MetadataHandler implements Route {
   }
 
   private String getSourceID(InputFile file) throws DatasourceException {
-    String sourceId = null;
+    String sourceId;
     if (file.url() == null || file.url().isEmpty()) {
       sourceId = this.source.addFile(file.filepath());
     } else {
