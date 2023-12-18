@@ -136,7 +136,7 @@ public class MetadataHandler implements Route {
     List<File> fileList = new ArrayList<>();
     ReliabilityCalculator raCalc = new ReliabilityCalculator();
     RelevanceCalculator rvCalc = new RelevanceCalculator();
-    Map<MDCInput, RScores> rScoreMap = new HashMap<>();
+    Map<String, Map<MDCInput, RScores>> rScoreMap = new HashMap<>();
 
     for (InputFile file : files){
       String fileResult = "success";
@@ -191,8 +191,10 @@ public class MetadataHandler implements Route {
           // If ChatPDF successfully responds, gets the reliability score and tf scores and stores
           // it in a temporary data structure. idf scores are computed after all documents are run.
           if (mdResult.equals("success")){
-            rScoreMap.put(column, this.getRaTfScores(column, rawResponse, raCalc,
-                rvCalc, pdfContent, pdfResult));
+            Map<MDCInput, RScores> ratfMap = new HashMap<>();
+            ratfMap.put(column, this.getRaTfScores(column, rawResponse, raCalc,
+                    rvCalc, pdfContent, pdfResult));
+            rScoreMap.put(file.title(), ratfMap);
             metadata = new Metadata(mdResult, rawResponse, null, null);
           }
           metadataList.add(metadata);
@@ -254,13 +256,13 @@ public class MetadataHandler implements Route {
    * @return
    */
   public List<File> calculateRScores(List<MDCInput> columnList, List<File> fileList,
-      Map<MDCInput, RScores> rScoreMap, RelevanceCalculator rvCalc){
+      Map<String, Map<MDCInput, RScores>> rScoreMap, RelevanceCalculator rvCalc){
     for (File file: fileList) {
       if (file.result().equals("success")){
         for (int i=0; i < columnList.size(); i++){
           MDCInput column = columnList.get(i);
-          if(rScoreMap.containsKey(column)){
-            RScores rScore = rScoreMap.get(column);
+          if(rScoreMap.containsKey(file.title()) && rScoreMap.get(file.title()).containsKey(column)){
+            RScores rScore = rScoreMap.get(file.title()).get(column);
             Map<String, Double> rvMap = null;
             try {
               if(rScore.tfList() == null){
@@ -269,8 +271,8 @@ public class MetadataHandler implements Route {
                 rvMap = rvCalc.getRelevanceScore(column, rScore.tfList());
               }
             } catch (DatasourceException e){
-              rScoreMap.replaceAll((col, score) -> new RScores("error", score.reliability(),
-                  null, null, e.getMessage()));
+              rScoreMap.get(file.title()).replaceAll((col, score) -> new RScores("error",
+                  score.reliability(), null, null, e.getMessage()));
             }
             Map<String, Double[]> data = new HashMap<>();
             for (String keyword : rScore.reliability().keySet()) {

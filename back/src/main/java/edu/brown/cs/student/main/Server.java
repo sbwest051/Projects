@@ -4,7 +4,6 @@ import static spark.Spark.after;
 
 import spark.Spark;
 import static spark.Spark.options;
-
 /**
  * Top-level class for this demo. Contains the main() method which starts Spark and runs the various
  * handlers.
@@ -15,6 +14,9 @@ import static spark.Spark.options;
  */
 public class Server {
   public Server() {
+    System.setProperty("org.apache.commons.logging.Log",
+        "org.apache.commons.logging.impl.NoOpLog");
+
     int port = 4000;
     Spark.port(port);
 

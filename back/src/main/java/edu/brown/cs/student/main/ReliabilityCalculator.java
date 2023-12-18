@@ -49,8 +49,8 @@ public class ReliabilityCalculator {
       }
       double avgScore =
           phraseScoreList.stream().mapToDouble(d -> d).average().orElse(minimumReliability);
-      /*avgScore = avgScore * Math.pow(wordDistanceFactor, this.getPhraseSimilarity(indexList,
-          contentList));*/
+      avgScore = avgScore * Math.pow(wordDistanceFactor, this.getPhraseSimilarity(indexList,
+          contentList));
       rScores.put(phrase, avgScore);
     }
     return rScores;

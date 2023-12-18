@@ -43,6 +43,9 @@ public class TestCompile {
 
   @BeforeEach
   public void setup() {
+    System.setProperty("org.apache.commons.logging.Log",
+        "org.apache.commons.logging.impl.NoOpLog");
+
     int port = 3234;
     Spark.port(port);
 

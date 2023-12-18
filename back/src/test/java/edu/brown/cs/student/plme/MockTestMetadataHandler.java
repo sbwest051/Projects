@@ -10,11 +10,10 @@ import edu.brown.cs.student.main.CSV.Parser;
 import edu.brown.cs.student.main.ChatPDFSource;
 import edu.brown.cs.student.main.FactoryFailureException;
 import edu.brown.cs.student.main.MetadataHandler;
+import edu.brown.cs.student.main.MockPDFSource;
 import edu.brown.cs.student.main.records.PLME.MDCInput;
-import edu.brown.cs.student.main.records.PLME.request.InputFile;
 import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
 import edu.brown.cs.student.main.records.PLME.response.MetadataTable;
-import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -31,12 +30,13 @@ import org.junit.jupiter.api.Test;
 import org.testng.Assert;
 import spark.Spark;
 
-public class TestMetadataHandler {
-  public TestMetadataHandler() {}
+public class MockTestMetadataHandler {
+  public MockTestMetadataHandler() {}
   @BeforeEach
   public void setup() {
     System.setProperty("org.apache.commons.logging.Log",
         "org.apache.commons.logging.impl.NoOpLog");
+
     int port = 3234;
     Spark.port(port);
 
@@ -78,7 +78,7 @@ public class TestMetadataHandler {
       System.err.println(e.getMessage());
       System.exit(0);
     }
-    Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
+    Spark.post("plme", new MetadataHandler(new MockPDFSource()));
 
     Spark.init();
     Spark.awaitInitialization();
@@ -90,35 +90,6 @@ public class TestMetadataHandler {
   public void largerInputTest() throws IOException {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
-    List<String> keywordList = new ArrayList<>();
-    keywordList.add("Bronchialveolar Lavage Fluid");
-    keywordList.add("Sputum");
-    keywordList.add("Saliva");
-    keywordList.add("oropharyngial");
-    keywordList.add("not sampled");
-    MDCInput sampleInput = new MDCInput("Sample Type", "How was the respiratory tract sampled?",
-        keywordList, null);
-
-    Map<String, List<String>> map = new LinkedHashMap<>();
-    List<String> kl = new ArrayList<>();
-    kl.add("longitudinal");
-    kl.add("over time");
-    map.put("Longitudinal", kl);
-    List<String> kl1 = new ArrayList<>();
-    kl1.add("cross-sectional");
-    kl1.add("at one time");
-    kl1.add("cohort");
-    map.put("Cross-sectional", kl1);
-    List<String> kl2 = new ArrayList<>();
-    kl2.add("scoping");
-    kl2.add("review");
-    map.put("review", kl2);
-    List<String> kl3 = new ArrayList<>();
-    kl3.add("it is not clear");
-    kl3.add("unknown");
-    map.put("N/A", kl3);
-    MDCInput studyInput = new MDCInput("Type of Study", "Was this paper a review paper, "
-        + "longitudinal study, or cross-sectional/cohort study?", null, map);
 
     List<String> subjectList = new ArrayList<>();
     subjectList.add("sheep");
@@ -131,8 +102,6 @@ public class TestMetadataHandler {
         subjectList, null);
 
     List<MDCInput> inputs = new ArrayList<>();
-    inputs.add(sampleInput);
-    inputs.add(studyInput);
     inputs.add(subjectInput);
     System.out.println(adapter.toJson(new PLMEInput("data/LargerTestFiles.csv", null, inputs)));
     System.out.println(this.deserialize(adapter.toJson(new PLMEInput("data/LargerTestFiles.csv",
