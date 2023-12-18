@@ -21,8 +21,13 @@ public class InputFileCreator implements CreatorFromRow<InputFile> {
    */
   @Override
   public InputFile create(List<String> row) throws FactoryFailureException {
-    if (row.size() < 3) {
+    if (row.isEmpty()) {
       throw new FactoryFailureException("Row is of invalid number of objects.", row);
+    }
+    if (row.size() == 1){
+      return new InputFile(null,helper(row.get(0)),null);
+    } else if (row.size() == 2){
+      return new InputFile(helper(row.get(0)),helper(row.get(1)),null);
     }
     return new InputFile(helper(row.get(0)),helper(row.get(1)), helper(row.get(2)));
   }
