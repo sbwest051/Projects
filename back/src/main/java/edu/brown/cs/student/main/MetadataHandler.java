@@ -139,7 +139,6 @@ public class MetadataHandler implements Route {
       String fileResult = "success";
 
       // Attempts to get sourceID for file based on the path to pdf.
-      // Will also attempt to read PDF now to get relevance score later.
       String sourceId = null;
       try {
         sourceId = this.getSourceID(file);
@@ -165,6 +164,7 @@ public class MetadataHandler implements Route {
           }
         }
       } catch (DatasourceException e) {
+        // Error will be reflected in the metadata message.
         pdfResult = "error";
       }
 
@@ -184,7 +184,6 @@ public class MetadataHandler implements Route {
             mdResult = "error";
             metadata = new Metadata(mdResult, null, null, e.getMessage());
           }
-
           // If ChatPDF successfully responds, gets the reliability score and tf scores and stores
           // it in a temporary data structure. idf scores are computed after all documents are run.
           if (mdResult.equals("success")){
@@ -199,7 +198,6 @@ public class MetadataHandler implements Route {
           null);
       fileList.add(outputFile);
     }
-
     return new MetadataTable("success", columns,
         this.calculateRScores(columns, fileList,rScoreMap, rvCalc), null);
   }
@@ -219,42 +217,31 @@ public class MetadataHandler implements Route {
 
   public RScores getRaTfScores(MDCInput column, String rawResponse, ReliabilityCalculator raCalc,
       RelevanceCalculator rvCalc, String pdfContent, String pdfResult){
-    // If: keyword map rScore calculating; else: keywordList
     String errText = null;
-    Map<String, Double> raMap;
-    if (column.keywordList() == null || column.keywordList().isEmpty()){
-      raMap = raCalc.getReliabilityScore(rawResponse,column.keywordMap());
-
-      // To get term frequencies
-      Map<String, Map<String, Double>> tfMap = null;
-      if (pdfResult.equals("success")){
-        try {
-          tfMap = rvCalc.calculateTFMap(column,pdfContent);
-        } catch (DatasourceException e) {
-          pdfResult = "error";
-          errText = e.getMessage();
+    Map<String, Double> raMap = null;
+    Map<String, Map<String, Double>> tfMap = null;
+    Map<String, Double> tfList = null;
+    try {
+      if (column.keywordList() == null || column.keywordList().isEmpty()){
+        raMap = raCalc.getReliabilityScore(rawResponse,column.keywordMap());
+        if (pdfResult.equals("success")){
+            tfMap = rvCalc.calculateTFMap(column,pdfContent);
         }
-      }
-      return new RScores(pdfResult, raMap,null, tfMap, errText);
-    } else {
-      raMap = raCalc.getReliabilityScore(rawResponse,column.keywordList());
-      Map<String, Double> tfList = null;
-
-      // To get term frequencies
-      if (pdfResult.equals("success")){
-        try {
+      } else {
+        raMap = raCalc.getReliabilityScore(rawResponse,column.keywordList());
+        if (pdfResult.equals("success")){
           tfList = rvCalc.calculateTFList(column, pdfContent, column.keywordList());
-        } catch (DatasourceException e) {
-          pdfResult = "error";
-          errText = e.getMessage();
         }
       }
-      return new RScores(pdfResult, raMap,tfList, null, errText);
+    } catch (DatasourceException e) {
+      pdfResult = "error";
+      errText = e.getMessage();
     }
+    return new RScores(pdfResult, raMap, tfList, tfMap, errText);
   }
 
   /**
-   * Reloops into the FileList to add all of the rScores into the metadata, having the idf values
+   * Re-loops into the FileList to add all the rScores into the metadata, having the idf values
    * completely calculated.
    * @param columnList
    * @param fileList
@@ -265,10 +252,8 @@ public class MetadataHandler implements Route {
   public List<File> calculateRScores(List<MDCInput> columnList, List<File> fileList,
       Map<MDCInput, RScores> rScoreMap, RelevanceCalculator rvCalc){
     for (File file: fileList) {
-
       if (file.result().equals("success")){
         for (int i=0; i < columnList.size(); i++){
-
           MDCInput column = columnList.get(i);
           if(rScoreMap.containsKey(column)){
             RScores rScore = rScoreMap.get(column);
@@ -283,7 +268,6 @@ public class MetadataHandler implements Route {
               rScoreMap.replaceAll((col, score) -> new RScores("error", score.reliability(),
                   null, null, e.getMessage()));
             }
-
             Map<String, Double[]> data = new HashMap<>();
             for (String keyword : rScore.reliability().keySet()) {
               Double[] scores = new Double[2];
@@ -305,4 +289,3 @@ public class MetadataHandler implements Route {
     return fileList;
   }
 }
-

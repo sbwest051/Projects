@@ -1,18 +1,15 @@
 package edu.brown.cs.student.plme;
 
-import edu.brown.cs.student.main.ChatPDFSource;
 import edu.brown.cs.student.main.ReliabilityCalculator;
-import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.testng.Assert;
 
 public class TestReliabilityCalculator {
 
-  private ReliabilityCalculator rc;
+  private final ReliabilityCalculator rc;
 
   public TestReliabilityCalculator(){
     this.rc = new ReliabilityCalculator();

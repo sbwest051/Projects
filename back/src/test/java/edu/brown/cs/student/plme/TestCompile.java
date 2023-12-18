@@ -105,7 +105,8 @@ public class TestCompile {
     inputs.add(listinput);
     inputs.add(mapinput);
     System.out.println(adapter.toJson(new PLMEInput(null, list, inputs)));
-    System.out.println(this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs))).serialize());
+    System.out.println(this.deserialize(adapter.toJson(new PLMEInput(null, list, inputs)))
+     .serialize());
   }
 
   @Test
