@@ -15,29 +15,35 @@ import static spark.Spark.options;
  */
 public class Server {
   public Server() {
-    int port = 4002;
+    int port = 4000;
     Spark.port(port);
 
+// Handle HTTP OPTIONS requests for any path
       options("/*", (request, response) -> {
+          // Retrieve the Access-Control-Request-Headers header from the request
           String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+          // If it's not null, set the corresponding response header
           if (accessControlRequestHeaders != null) {
               response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
           }
 
+          // Retrieve the Access-Control-Request-Method header from the request
           String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+          // If it's not null, set the corresponding response header
           if (accessControlRequestMethod != null) {
               response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
           }
 
+          // Return "OK" as the response
           return "OK";
       });
 
+// After processing each HTTP request, set CORS response headers
       after((request, response) -> {
-          response.header("Access-Control-Allow-Origin", "*");
-          response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-          response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,");
+          response.header("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
+          response.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS"); // Specify allowed HTTP methods
+          response.header("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin,"); // Specify allowed headers
       });
-
       Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
 
     Spark.init();

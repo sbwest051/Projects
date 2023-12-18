@@ -13,6 +13,7 @@ interface REPLHistoryProps {
   history: [string, string | string[][]][];
   // isVerbose: boolean;
   // setVerbose: Dispatch<SetStateAction<boolean>>;
+  tableData: any[];
   count: number;
 }
 
@@ -21,34 +22,22 @@ interface REPLHistoryProps {
  * @param props An interface between a higher level component and a lower one.
  * @returns A list of command responses, or a list of commands and their responses if isVerbose is toggled
  */
-export function REPLHistory(props: REPLHistoryProps) {
-  //const [data, setData] = useState<string[][]>([]);
-  // Callback function to set data
-  // const updateData = (newData) => {
-  //   setData(newData);
- // if (!props.isVerbose) {
-    return (
-      //Insert here the actual return
-      <div className="repl-history">
-        {props.history.map((command, index) => (
-          <>
-            <p aria-label={`Output ${index}`}>Output:</p>
-            <REPLView data={command[1]} count={index} />
-          </>
-        ))}
-      </div>
-    );
- // }
-  // return (
-  //   <div className="repl-history">
-  //     {props.history.map((command, index) => (
-  //       <>
-  //         <p aria-label={`Commanded ${index}`}>Command: {command[0]}</p>
-  //         <p aria-label={`Output ${index}`}>
-  //           Output: <REPLView data={command[1]} count={index} />
-  //         </p>
-  //       </>
-  //     ))}
-  //   </div>
-  // );
-}
+// export function REPLHistory(props: REPLHistoryProps) {
+//   //const [data, setData] = useState<string[][]>([]);
+//   // Callback function to set data
+//   // const updateData = (newData) => {
+//   //   setData(newData);
+//  // if (!props.isVerbose) {
+//     return (
+//       //Insert here the actual return
+//       <div className="repl-history">
+//         {/* {props.history.map((command, index) => (
+//           <> */}
+//             <p>Question: </p>
+//             <REPLView tableData={props.tableData}  />
+//           {/* </>
+//         ))} */}
+//       </div>
+//     );
+
+// }

@@ -1,6 +1,6 @@
 import { SetStateAction, useState } from "react";
 import "../styles/main.css";
-import { REPLHistory } from "./REPLHistory";
+//import { REPLHistory } from "./REPLHistory";
 import { REPLInput } from "./REPLInput";
 
 /* 
@@ -11,19 +11,23 @@ export default function REPL() {
   //const [isVerbose, setVerbose] = useState<boolean>(false);
   const [data, setData] = useState<string[][]>([]);
   const [count, setCount] = useState<number>(0);
+  const [tableData, setTableData] = useState<any>([]);
  // const [files, setFiles] = useState<string[]>([]);
 
   return (
     <div className="repl">
-      <REPLHistory
+      {/* <REPLHistory
         history={history}
         count={count}
-      />
+        tableData={tableData}
+      /> */}
       {/* <hr></hr> */}
       <REPLInput
         // files={files}
         history={history}
         setHistory={setHistory}
+        tableData={tableData}
+        setTableData={setTableData}
         //setFiles={setFiles}
         //data={data}
         setData={setData}
