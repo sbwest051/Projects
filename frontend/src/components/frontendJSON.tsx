@@ -1,5 +1,10 @@
 interface JSONStructure {
   files: Source[];
+  columns: Column[];  
+}
+
+interface JSONFilepathStructure {
+  filepath: string;
   columns: Column[];  // Define the type of 'columns' or use a specific type
 }
 
@@ -21,7 +26,7 @@ export type Column = {
 // Define the SourceData type as a tuple that represents the structure of data inputs.
 export type SourceData = [string, string, string]; // Tuple of [pdfType, title, link/filepath]
 
-function keyMapHelper(pairs: string[]){
+export function keyMapHelper(pairs: string[]){
   const keyValuePairs = pairs.map(piece => piece.trim());
 
 // Initialize an empty object
@@ -37,8 +42,8 @@ function keyMapHelper(pairs: string[]){
         if (!keywordMap[key]) {
           keywordMap[key] = [];
         }
-        // Push the value into the corresponding array, splitting by commas if necessary
-        keywordMap[key].push(...value.split(',').map(v => v.trim()));
+        // Push the value into the corresponding array, splitting by spaces 
+        keywordMap[key].push(...value.split(' ').map(v => v.trim()));
       } else {
         // If there is no colon, assume it is a single value and add it to a 'default' key
         if (!keywordMap['default']) {
@@ -47,6 +52,7 @@ function keyMapHelper(pairs: string[]){
         keywordMap['default'].push(pair);
       }
     });
+    return keywordMap;  // Return the constructed keywordMap
     }
 
 
@@ -62,7 +68,7 @@ export function constructJSON(dataValues: SourceData[], queryTitle: string, ques
   const keywordsArray = keywords.split(",");
   const columnKeywordsData = !keywordsArray[0].includes(":")
     ? {keywordList: keywords.split(",").map(keyword => keyword.trim())}
-    : { keywordMap: { /* figure out how to construct */ } };
+    : { keywordMap: keyMapHelper(keywordsArray) };
 
   const newColumn = {
     title: queryTitle,
@@ -72,6 +78,26 @@ export function constructJSON(dataValues: SourceData[], queryTitle: string, ques
 
   return {
     files,
+    columns: [newColumn],
+  };
+}
+
+export function constructFilepathJSON(filepath: string, queryTitle: string, question: string, keywords: string): JSONFilepathStructure {
+
+
+  const keywordsArray = keywords.split(",");
+  const columnKeywordsData = !keywordsArray[0].includes(":")
+    ? {keywordList: keywords.split(",").map(keyword => keyword.trim())}
+    : { keywordMap: keyMapHelper(keywordsArray) };
+
+  const newColumn = {
+    title: queryTitle,
+    question: question,
+    ...columnKeywordsData,
+  };
+
+  return {
+    "filepath": filepath,
     columns: [newColumn],
   };
 }

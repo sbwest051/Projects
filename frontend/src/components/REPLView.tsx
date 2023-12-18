@@ -9,6 +9,7 @@ import { ControlledInput } from "./ControlledInput";
  */
 interface REPLViewProps {
   tableData: any[];
+  question: string
   //count: number;
 }
 
@@ -20,11 +21,12 @@ interface REPLViewProps {
 
 export function REPLView(props: REPLViewProps) {
   return (
-    <table>
+    <><p aria-label="Query">Query: {props.question}</p>
+    <table aria-label="Table containing query results">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Question Answer</th>
+          <th aria-label="Title">Title</th>
+          <th aria-label="Question Answer">Question Answer</th>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +37,6 @@ export function REPLView(props: REPLViewProps) {
           </tr>
         ))}
       </tbody>
-    </table>
+    </table></>
   );
 }

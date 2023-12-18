@@ -3,14 +3,13 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { QueryInput } from "./QueryInput";
 import {constructJSON, Source, SourceData} from "./frontendJSON"
+import { REPLView } from "./REPLView";
 
 
 /**
- * A connection between components in the mock.
+
  * @param history The history of each submitted command, stored in tuples or string 2D arrays
  * @param setHistory The function by which we alter history
- * @param isVerbose Whether the current view method is verbose or not
- * @param setVerbose How to set the verbocity
  * @param data The currently stored CSV
  * @param setData How to set the currently stored data
  * @param count The current number of commands being displayed
@@ -45,6 +44,7 @@ export function REPLInput(props: REPLInputProps) {
   const [question, setQuestion] = useState("");
   const [keywords, setKeywords] = useState("");
   const [score, setScore] = useState("");
+  const [showTable, setShowTable] = useState(false); // state to control the visibility of the table
   //const [tableData, setTableData] = useState([]);
 
 
@@ -87,7 +87,13 @@ fetch('http://localhost:4000/plme', {
 .then(data => {
   // Log the data received from the server
   console.log(data);
-  props.setTableData(data.fileList);
+      if (data.result === "success") {
+      // Update the tableData and question state if data.result is "success"
+      props.setTableData(data.fileList);
+      setQuestion(question); // Set the question state
+      setShowTable(true); // Set the state to show the table
+    }
+  // REPLView(data.fileList,question)
 })
 .catch(error => {
   // Log any errors encountered during the fetch
@@ -105,6 +111,7 @@ fetch('http://localhost:4000/plme', {
   }
   return (
     <div className="repl-input">
+        {showTable && <REPLView question={question} tableData={props.tableData} />}
 
       {inputValues.map((value, index) => (
         <ControlledInput
@@ -149,7 +156,7 @@ fetch('http://localhost:4000/plme', {
       />
       <button aria-label="manual submit button" onClick={() => handleSubmit()}>
         Submit </button>
-      
+     
     </div>
   );
 }

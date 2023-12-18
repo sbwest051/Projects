@@ -4,7 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e742c7bf-548e-45cf-88ed-86ca41474cf0" name="Changes" comment="" />
+    <list default="true" id="e742c7bf-548e-45cf-88ed-86ca41474cf0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/back/data/test/test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/back/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/back/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/back/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/back/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/back/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/CSV/creators/InputFileCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/CSV/creators/InputFileCreator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/MetadataHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/MetadataHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/RelevanceCalculator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/ReliabilityCalculator.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/ReliabilityCalculator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/edu/brown/cs/student/main/records/PLME/RScores.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/test/java/edu/brown/cs/student/plme/TestCompile.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/test/java/edu/brown/cs/student/plme/TestCompile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/test/java/edu/brown/cs/student/plme/TestReliabilityCalculator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Filepath.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Filepath.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/QueryInput.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/QueryInput.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/REPL.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/REPL.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/REPLHistory.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/REPLHistory.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/REPLInput.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/REPLInput.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/REPLView.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/REPLView.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/frontendJSON.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/frontendJSON.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +112,7 @@
       <workItem from="1702585023231" duration="3235000" />
       <workItem from="1702741717237" duration="132000" />
       <workItem from="1702741881290" duration="1201000" />
-      <workItem from="1702846201363" duration="4170000" />
+      <workItem from="1702846201363" duration="9477000" />
     </task>
     <servers />
   </component>

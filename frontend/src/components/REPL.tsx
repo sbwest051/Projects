@@ -1,6 +1,6 @@
 import { SetStateAction, useState } from "react";
 import "../styles/main.css";
-import { REPLHistory } from "./REPLHistory";
+//import { REPLHistory } from "./REPLHistory";
 import { REPLInput } from "./REPLInput";
 
 /* 
@@ -16,11 +16,11 @@ export default function REPL() {
 
   return (
     <div className="repl">
-      <REPLHistory
+      {/* <REPLHistory
         history={history}
         count={count}
         tableData={tableData}
-      />
+      /> */}
       {/* <hr></hr> */}
       <REPLInput
         // files={files}

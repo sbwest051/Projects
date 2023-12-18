@@ -40,17 +40,18 @@ export function QueryInput({
       aria-description="where to put your query "
       //onKeyPress={onKeyPress}
       autoFocus
-    ></input><input
-      type="text"
+    ></input><textarea
+      // type="text"
       className="repl-command-box"
       value={question}
+      style={{ height: "40px" }}
       placeholder="Enter question of query here!"
       onChange={(ev) => setQuestion(ev.target.value)}
       aria-label={ariaLabel}
       aria-description="where to put your query "
       //onKeyPress={onKeyPress}
       autoFocus
-    ></input><input
+    ></textarea><input
       type="text"
       className="repl-command-box"
       value={keywords}
