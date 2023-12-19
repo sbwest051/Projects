@@ -7,9 +7,9 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import edu.brown.cs.student.main.csv.CSVData;
 import edu.brown.cs.student.main.csv.Parser;
-import edu.brown.cs.student.main.plme.sources.ChatPDFSource;
 import edu.brown.cs.student.main.exceptions.FactoryFailureException;
 import edu.brown.cs.student.main.plme.MetadataHandler;
+import edu.brown.cs.student.main.plme.sources.MockPDFSource;
 import edu.brown.cs.student.main.records.PLME.MDCInput;
 import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
 import edu.brown.cs.student.main.records.PLME.response.MetadataTable;
@@ -29,14 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.testng.Assert;
 import spark.Spark;
 
-public class TestMetadataHandler {
-  public TestMetadataHandler() {}
+public class TestMockMetadataHandler {
+  public TestMockMetadataHandler() {}
   @BeforeEach
   public void setup() {
-    System.setProperty("org.apache.commons.logging.Log",
-        "org.apache.commons.logging.impl.NoOpLog");
     int port = 3234;
     Spark.port(port);
+    System.setProperty("org.apache.commons.logging.Log",
+        "org.apache.commons.logging.impl.NoOpLog");
 
     options("/*", (request, response) -> {
       String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -76,7 +76,7 @@ public class TestMetadataHandler {
       System.err.println(e.getMessage());
       System.exit(0);
     }
-    Spark.post("plme", new MetadataHandler(new ChatPDFSource()));
+    Spark.post("plme", new MetadataHandler(new MockPDFSource()));
 
     Spark.init();
     Spark.awaitInitialization();
@@ -88,14 +88,6 @@ public class TestMetadataHandler {
   public void largerInputTest() throws IOException {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
-    List<String> keywordList = new ArrayList<>();
-    keywordList.add("Bronchoalveolar Lavage Fluid");
-    keywordList.add("Sputum");
-    keywordList.add("Saliva");
-    keywordList.add("oropharyngial");
-    keywordList.add("not sampled");
-    MDCInput sampleInput = new MDCInput("Sample Type", "How was the respiratory tract sampled?",
-        keywordList, null);
 
     Map<String, List<String>> map = new LinkedHashMap<>();
     List<String> kl = new ArrayList<>();
@@ -104,7 +96,7 @@ public class TestMetadataHandler {
     map.put("Longitudinal", kl);
     List<String> kl1 = new ArrayList<>();
     kl1.add("cross-sectional");
-    kl1.add("at one time");
+    kl1.add("cross-sectional/cohort");
     kl1.add("cohort");
     map.put("Cross-sectional", kl1);
     List<String> kl2 = new ArrayList<>();
@@ -113,8 +105,10 @@ public class TestMetadataHandler {
     map.put("review", kl2);
     List<String> kl3 = new ArrayList<>();
     kl3.add("it is not clear");
+    kl3.add("not a longitudinal study");
     kl3.add("unknown");
-    map.put("N/A", kl3);
+    kl3.add("unspecified");
+    map.put("unknown", kl3);
     MDCInput studyInput = new MDCInput("Type of Study", "Was this paper a review paper, "
         + "longitudinal study, or cross-sectional/cohort study?", null, map);
 
@@ -129,11 +123,29 @@ public class TestMetadataHandler {
         subjectList, null);
 
     List<MDCInput> inputs = new ArrayList<>();
-    inputs.add(sampleInput);
     inputs.add(studyInput);
     inputs.add(subjectInput);
     System.out.println(adapter.toJson(new PLMEInput("data/LargerTestFiles.csv", null, inputs)));
     System.out.println(this.deserialize(adapter.toJson(new PLMEInput("data/LargerTestFiles.csv",
+        null, inputs))).serialize());
+  }
+
+  @Test
+  public void smallTest() throws IOException {
+    Moshi moshi = new Moshi.Builder().build();
+    JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
+
+    List<String> subjectList = new ArrayList<>();
+    subjectList.add("sheep");
+    subjectList.add("children");
+    subjectList.add("mice");
+    MDCInput subjectInput = new MDCInput("Subjects", "Who were the subjects of the study?",
+        subjectList, null);
+
+    List<MDCInput> inputs = new ArrayList<>();
+    inputs.add(subjectInput);
+    System.out.println(adapter.toJson(new PLMEInput("data/Small.csv", null, inputs)));
+    System.out.println(this.deserialize(adapter.toJson(new PLMEInput("data/Small.csv",
         null, inputs))).serialize());
   }
 

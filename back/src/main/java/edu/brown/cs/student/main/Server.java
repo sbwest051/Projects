@@ -2,6 +2,8 @@ package edu.brown.cs.student.main;
 
 import static spark.Spark.after;
 
+import edu.brown.cs.student.main.plme.sources.ChatPDFSource;
+import edu.brown.cs.student.main.plme.MetadataHandler;
 import spark.Spark;
 import static spark.Spark.options;
 /**
