@@ -3,14 +3,13 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { ControlledInput } from "./ControlledInput";
 import { QueryInput } from "./QueryInput";
 import {constructJSON, Source, SourceData} from "./frontendJSON"
+import { REPLView } from "./REPLView";
 
 
 /**
- * A connection between components in the mock.
+
  * @param history The history of each submitted command, stored in tuples or string 2D arrays
  * @param setHistory The function by which we alter history
- * @param isVerbose Whether the current view method is verbose or not
- * @param setVerbose How to set the verbocity
  * @param data The currently stored CSV
  * @param setData How to set the currently stored data
  * @param count The current number of commands being displayed
@@ -23,6 +22,8 @@ interface REPLInputProps {
   count: number;
   setData: Dispatch<SetStateAction<string[][]>>;
   pdfType: string;
+  tableData: any[];
+  setTableData: Dispatch<SetStateAction<any[]>>;
   //setMode:
 }
 /**
@@ -31,9 +32,7 @@ interface REPLInputProps {
  * @returns The input text box and submit button
  */
 export function REPLInput(props: REPLInputProps) {
-  // Remember: let React manage state in your webapp.
-  // Manages the contents of the input box
-  const [commandString, setCommandString] = useState<string>("");
+
   const [count, setCount] = useState<number>(0);
   //const [files, setFiles] = useState<string[]>([]);
   const [inputValues, setInputValues] = useState<string[]>([""])
@@ -45,11 +44,13 @@ export function REPLInput(props: REPLInputProps) {
   const [question, setQuestion] = useState("");
   const [keywords, setKeywords] = useState("");
   const [score, setScore] = useState("");
+  const [showTable, setShowTable] = useState(false); // state to control the visibility of the table
+  //const [tableData, setTableData] = useState([]);
 
 
 
   // This function is triggered when the submit button is clicked.
-  function handleSubmit(commandString: string) {
+  function handleSubmit() {
 
     //setPdfTypes([...pdfTypes,props.pdfType ]) //check to see if this line is necessary 
     console.log("Selected PDF Types:", pdfTypes);
@@ -68,7 +69,7 @@ export function REPLInput(props: REPLInputProps) {
   console.log(JSON.stringify(jsonStructure));
 
 
-fetch('http://localhost:4002/plme', {
+fetch('http://localhost:4000/plme', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -86,6 +87,18 @@ fetch('http://localhost:4002/plme', {
 .then(data => {
   // Log the data received from the server
   console.log(data);
+      if (data.result === "success") {
+      // Update the tableData and question state if data.result is "success"
+      props.setTableData(data.fileList);
+      setQuestion(question); // Set the question state
+      setShowTable(true); // Set the state to show the table
+    }{
+        alert(data.message)
+      // If result is not success, set the error message and show the popup
+      // setErrorMessage(data.message || 'An error occurred.');
+      // setShowErrorPopup(true);
+    }
+  // REPLView(data.fileList,question)
 })
 .catch(error => {
   // Log any errors encountered during the fetch
@@ -103,6 +116,7 @@ fetch('http://localhost:4002/plme', {
   }
   return (
     <div className="repl-input">
+        {showTable && <REPLView question={question} tableData={props.tableData} />}
 
       {inputValues.map((value, index) => (
         <ControlledInput
@@ -145,9 +159,9 @@ fetch('http://localhost:4002/plme', {
         // setScore= {setScore}
         ariaLabel="Query Input"
       />
-      <button aria-label="manual submit button" onClick={() => handleSubmit(commandString)}>
+      <button aria-label="manual submit button" onClick={() => handleSubmit()}>
         Submit </button>
-      
+     
     </div>
   );
 }

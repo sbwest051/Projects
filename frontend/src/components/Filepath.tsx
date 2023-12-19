@@ -1,51 +1,83 @@
 import "../styles/main.css";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { QueryInput } from "./QueryInput";
+import { constructFilepathJSON } from "./frontendJSON";
+import { REPLView } from "./REPLView";
 
-// uses value state variable to update the command string in the REPL input class
 interface FilepathProps {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   ariaLabel: string;
-  onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-
-
+  tableData: any[];
+  setTableData: Dispatch<SetStateAction<any[]>>;
 }
 
+export function Filepath(props: FilepathProps) {
+  const [queryTitle, setQueryTitle] = useState("");
+  const [question, setQuestion] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [showTable, setShowTable] = useState(false); // state to control the visibility of the table
 
-// function which updates the command string from the text box input
-export function Filepath({
-  value,
-  setValue,
-  ariaLabel,
-  onKeyPress,
-}: FilepathProps) {
+  function handleFileSubmit() {
+    const jsonStructure = constructFilepathJSON(props.value, queryTitle, question, keywords);
+    console.log(jsonStructure);
 
-    function handleFileSubmit() {
-      const jsonStructure = { filepath: value };
-      fetch('http://localhost:4002/plme', {
+    fetch('http://localhost:4000/plme', {
       method: 'POST',
       headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(jsonStructure),
-  
-})
-    console.log(value)
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jsonStructure),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+      if (data.result === "success") {
+        props.setTableData(data.fileList);
+        setQuestion(question); 
+        setShowTable(true);
+      }else {
+        alert(data.message)
+      // If result is not success, set the error message and show the popup
+      // setErrorMessage(data.message || 'An error occurred.');
+      // setShowErrorPopup(true);
+    }
 
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
   }
+
   return (
-    <><input
-          type="text"
-          className="repl-command-box"
-          value={value}
-          placeholder="Enter filepath here!"
-          onChange={(ev) => setValue(ev.target.value)}
-          aria-label={ariaLabel}
-          aria-description="where to put your file path"
-          onKeyPress={onKeyPress}
-          autoFocus
-      ></input><button aria-label="manual submit button" onClick={() => handleFileSubmit()}>
-              Submit </button></>
-    
+    <>
+    {showTable && <REPLView question={question} tableData={props.tableData} />}
+      <input
+        type="text"
+        className="repl-command-box"
+        value={props.value}
+        onChange={(ev) => props.setValue(ev.target.value)}
+        aria-label={props.ariaLabel}
+        placeholder="Enter filepath here!"
+      />
+      <h3>Enter Query information in these boxes</h3>
+      <QueryInput
+        queryTitle={queryTitle}
+        setQueryTitle={setQueryTitle}
+        question={question}
+        setQuestion={setQuestion}
+        keywords={keywords}
+        setKeywords={setKeywords}
+        ariaLabel="Query Input"
+      />
+      <button aria-label="manual submit button" onClick={handleFileSubmit}>
+        Submit
+      </button>
+    </>
   );
 }

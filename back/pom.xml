@@ -100,7 +100,6 @@
       <artifactId>pdfbox</artifactId>
       <version>3.0.1</version>
     </dependency>
-
   </dependencies>
   <build>
     <plugins>
@@ -265,7 +264,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.4.0</version>
         <configuration>
-          <mainClass>edu.brown.cs.student.main.CSV.Main</mainClass>
+          <mainClass>edu.brown.cs.student.main.csv.Main</mainClass>
           <arguments/>
         </configuration>
         <executions>

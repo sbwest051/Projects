@@ -9,6 +9,7 @@ function App() {
     const [isFileClicked, setIsFileClicked] = useState(false);
     const [isManualClicked, setIsManulClicked] = useState(false);
     const [filePathValue, setFilePathValue] = useState("");
+    const [tableData, setTableData] = useState<any[]>([]);
 
     // useEffect(() => {
     //     // Logic to control when the popup should be shown
@@ -30,7 +31,7 @@ function App() {
                     <p>Instructions</p>
                     <p>Please choose how you would like to enter your query</p>
                     <button onClick={handleFileButton} >Enter query with file </button>
-                    <button onClick={handleManualButton}>Enter query manually 2</button>
+                    <button onClick={handleManualButton}>Enter query manually </button>
                 </div>
             </Popup>
             <p className="App-header">
@@ -42,7 +43,9 @@ function App() {
                 <Filepath 
                     value={filePathValue} 
                     setValue={setFilePathValue} 
-                    ariaLabel="File input" // Example ariaLabel
+                    ariaLabel="File input"                   
+                    tableData={tableData}
+                    setTableData={setTableData}
                 />
             )}
             {/* <REPL /> */}

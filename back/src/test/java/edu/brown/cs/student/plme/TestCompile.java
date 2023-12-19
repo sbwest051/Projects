@@ -5,29 +5,25 @@ import static spark.Spark.options;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import com.squareup.moshi.Types;
-import edu.brown.cs.student.main.CSV.CSVData;
-import edu.brown.cs.student.main.CSV.Parser;
-import edu.brown.cs.student.main.ChatPDFSource;
-import edu.brown.cs.student.main.FactoryFailureException;
-import edu.brown.cs.student.main.MetadataHandler;
+import edu.brown.cs.student.main.csv.CSVData;
+import edu.brown.cs.student.main.csv.Parser;
+import edu.brown.cs.student.main.plme.sources.ChatPDFSource;
+import edu.brown.cs.student.main.exceptions.FactoryFailureException;
+import edu.brown.cs.student.main.plme.MetadataHandler;
 import edu.brown.cs.student.main.records.PLME.MDCInput;
 import edu.brown.cs.student.main.records.PLME.request.InputFile;
 import edu.brown.cs.student.main.records.PLME.request.PLMEInput;
 import edu.brown.cs.student.main.records.PLME.response.File;
 import edu.brown.cs.student.main.records.PLME.response.Metadata;
 import edu.brown.cs.student.main.records.PLME.response.MetadataTable;
-import edu.brown.cs.student.main.server.exceptions.DatasourceException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -43,6 +39,9 @@ public class TestCompile {
 
   @BeforeEach
   public void setup() {
+    System.setProperty("org.apache.commons.logging.Log",
+        "org.apache.commons.logging.impl.NoOpLog");
+
     int port = 3234;
     Spark.port(port);
 
@@ -107,7 +106,7 @@ public class TestCompile {
        + ".gov/pmc/articles/PMC3539924/pdf/2045-7022-2-21.pdf");
     List<InputFile> list = new ArrayList<>();
     list.add(file1);
-    //list.add(file2);
+    list.add(file2);
 
     List<String> keywordList = new ArrayList<>();
     keywordList.add("allergies");
@@ -467,6 +466,7 @@ public class TestCompile {
 
   @Test
   public void getSampleOutput(){
+
     List<MDCInput> mdcl = new ArrayList<>();
     List<String> kl1 = new ArrayList<>();
     kl1.add("good");
@@ -543,7 +543,6 @@ public class TestCompile {
     MetadataTable mt = new MetadataTable("success", mdcl, fl,null);
     System.out.println(mt.serialize());
   }
-
 
   private static HttpURLConnection tryRequest(String body) throws IOException {
     // Configure the connection (but don't actually send the request yet)

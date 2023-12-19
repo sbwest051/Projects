@@ -9,5 +9,11 @@
         <module name="s0" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="data" target="19" />
+      <module name="s0 (1)" target="17" />
+      <module name="s0 (2)" target="19" />
+      <module name="src" target="19" />
+    </bytecodeTargetLevel>
   </component>
 </project>
