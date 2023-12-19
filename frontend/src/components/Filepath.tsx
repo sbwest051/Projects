@@ -1,15 +1,16 @@
 import "../styles/main.css";
 import { Dispatch, SetStateAction, useState } from "react";
 import { QueryInput } from "./QueryInput";
-import { constructFilepathJSON } from "./frontendJSON";
+import { constructFilepathJSON, Query } from "./frontendJSON";
 import { REPLView } from "./REPLView";
+import { TableData } from "./responseJSON";
 
 interface FilepathProps {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   ariaLabel: string;
-  tableData: any[];
-  setTableData: Dispatch<SetStateAction<any[]>>;
+  tableData: TableData;
+  setTableData: Dispatch<SetStateAction<TableData>>;
 }
 
 export function Filepath(props: FilepathProps) {
@@ -17,9 +18,23 @@ export function Filepath(props: FilepathProps) {
   const [question, setQuestion] = useState("");
   const [keywords, setKeywords] = useState("");
   const [showTable, setShowTable] = useState(false); // state to control the visibility of the table
+  const [queries, setQueries] = useState<Query[]>([
+      { queryTitle: "", question: "", keywords: "" },
+    ]);
+
+    function handleAddQuery() {
+      const newQuery = { queryTitle: "", question: "", keywords: "" };
+      setQueries([...queries, newQuery]);
+    }
+
+    function updateQuery(index: number, field: keyof Query, value: string) {
+      const updatedQueries = [...queries];
+      updatedQueries[index] = { ...updatedQueries[index], [field]: value };
+      setQueries(updatedQueries);
+    }
 
   function handleFileSubmit() {
-    const jsonStructure = constructFilepathJSON(props.value, queryTitle, question, keywords);
+    const jsonStructure = constructFilepathJSON(props.value, queries);
     console.log(jsonStructure);
 
     fetch('http://localhost:4000/plme', {
@@ -38,8 +53,8 @@ export function Filepath(props: FilepathProps) {
     .then(data => {
       console.log(data);
       if (data.result === "success") {
-        props.setTableData(data.fileList);
-        setQuestion(question); 
+        props.setTableData(data);
+        // setQuestion(question); 
         setShowTable(true);
       }else {
         alert(data.message)
@@ -56,7 +71,9 @@ export function Filepath(props: FilepathProps) {
 
   return (
     <>
-    {showTable && <REPLView question={question} tableData={props.tableData} />}
+      {showTable && (
+        <REPLView question={question} tableData={props.tableData} />
+      )}
       <input
         type="text"
         className="repl-command-box"
@@ -66,15 +83,19 @@ export function Filepath(props: FilepathProps) {
         placeholder="Enter filepath here!"
       />
       <h3>Enter Query information in these boxes</h3>
-      <QueryInput
-        queryTitle={queryTitle}
-        setQueryTitle={setQueryTitle}
-        question={question}
-        setQuestion={setQuestion}
-        keywords={keywords}
-        setKeywords={setKeywords}
-        ariaLabel="Query Input"
-      />
+      {queries.map((query, index) => (
+        <QueryInput
+          key={index}
+          queryTitle={query.queryTitle}
+          setQueryTitle={(value) => updateQuery(index, "queryTitle", value)}
+          question={query.question}
+          setQuestion={(value) => updateQuery(index, "question", value)}
+          keywords={query.keywords}
+          setKeywords={(value) => updateQuery(index, "keywords", value)}
+          ariaLabel={`Query Input ${index + 1}`}
+        />
+      ))}
+      <button onClick={handleAddQuery}>Add New Query</button>
       <button aria-label="manual submit button" onClick={handleFileSubmit}>
         Submit
       </button>

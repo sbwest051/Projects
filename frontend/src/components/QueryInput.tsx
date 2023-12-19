@@ -4,11 +4,11 @@ import { Dispatch, SetStateAction } from "react";
 // uses value state variable to update the command string in the REPL input class
 interface QueryInputProps {
   queryTitle: string;
-  setQueryTitle: Dispatch<SetStateAction<string>>;
+  setQueryTitle: (value: string) => void;
   question: string;
-  setQuestion: Dispatch<SetStateAction<string>>;
+  setQuestion: (value: string) => void;
   keywords: string;
-  setKeywords: Dispatch<SetStateAction<string>>;
+  setKeywords: (value: string) => void;
   // score: number;
   // setScore: Dispatch<SetStateAction<number>>;
   ariaLabel: string;

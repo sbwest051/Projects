@@ -18,6 +18,13 @@ export type Source = {
   title: string;
 } & ({ url: string } | { filepath: string });
 
+// has unparsed keywords
+export interface Query {
+  queryTitle: string;
+  question: string;
+  keywords: string;
+}
+// has parsed keywords
 export type Column = {
   title: string;
   question: string;
@@ -54,50 +61,54 @@ export function keyMapHelper(pairs: string[]){
     });
     return keywordMap;  // Return the constructed keywordMap
     }
-
-
-// This function takes an array of SourceData and maps it to an array of Source.
-export function constructJSON(dataValues: SourceData[], queryTitle: string, question: string, keywords: string): JSONStructure {
+export function constructJSON(
+  dataValues: SourceData[],
+  queries: Query[]
+): JSONStructure {
   const files = dataValues.map(([pdfType, title, linkOrPath]): Source => {
-    console.log(pdfType);
-    return pdfType === 'filepath'
+    return pdfType === "filepath"
       ? { title, filepath: linkOrPath }
       : { title, url: linkOrPath };
   });
 
-  const keywordsArray = keywords.split(",");
-  const columnKeywordsData = !keywordsArray[0].includes(":")
-    ? {keywordList: keywords.split(",").map(keyword => keyword.trim())}
-    : { keywordMap: keyMapHelper(keywordsArray) };
+  const columns = queries.map((query) => {
+    const keywordsArray = query.keywords.split(",");
+    const columnKeywordsData = !keywordsArray[0].includes(":")
+      ? { keywordList: keywordsArray.map((keyword) => keyword.trim()) }
+      : { keywordMap: keyMapHelper(keywordsArray) };
 
-  const newColumn = {
-    title: queryTitle,
-    question: question,
-    ...columnKeywordsData,
-  };
+    return {
+      title: query.queryTitle,
+      question: query.question,
+      ...columnKeywordsData,
+    };
+  });
 
-  return {
-    files,
-    columns: [newColumn],
-  };
+  return { files, columns };
 }
 
-export function constructFilepathJSON(filepath: string, queryTitle: string, question: string, keywords: string): JSONFilepathStructure {
+export function constructFilepathJSON(
+  filepath: string,
+  queries: Query[]
+): JSONFilepathStructure {
+  const columns = queries.map((query) => {
+    const keywordsArray = query.keywords.split(",");
+    const columnKeywordsData = !keywordsArray[0].includes(":")
+      ? { keywordList: keywordsArray.map((keyword) => keyword.trim()) }
+      : { keywordMap: keyMapHelper(keywordsArray) };
 
+    return {
+      title: query.queryTitle,
+      question: query.question,
+      ...columnKeywordsData,
+    };
+  });
 
-  const keywordsArray = keywords.split(",");
-  const columnKeywordsData = !keywordsArray[0].includes(":")
-    ? {keywordList: keywords.split(",").map(keyword => keyword.trim())}
-    : { keywordMap: keyMapHelper(keywordsArray) };
-
-  const newColumn = {
-    title: queryTitle,
-    question: question,
-    ...columnKeywordsData,
-  };
-
-  return {
-    "filepath": filepath,
-    columns: [newColumn],
-  };
+  return { filepath, columns };
 }
+
+
+
+
+
+
