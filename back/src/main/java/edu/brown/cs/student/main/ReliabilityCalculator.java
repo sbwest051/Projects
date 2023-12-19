@@ -98,20 +98,11 @@ public class ReliabilityCalculator {
           deletion = d[i - 1][j];
           replacement = d[i - 1][j - 1];
 
-          d[i][j] = 1 + findMin(insertion, deletion, replacement);
+          d[i][j] = 1 + Math.min(insertion, Math.min(deletion, replacement));
         }
       }
     }
     return d[keyword.length()][content.length()];
-  }
-
-  private int findMin(int x, int y, int z) {
-    if (x <= y && x <= z)
-      return x;
-    if (y <= x && y <= z)
-      return y;
-    else
-      return z;
   }
 
   private int getPhraseSimilarity(List<String> keyPhrase, List<String> content) {
@@ -135,7 +126,7 @@ public class ReliabilityCalculator {
           deletion = d[i - 1][j];
           replacement = d[i - 1][j - 1];
 
-          d[i][j] = 1 + findMin(insertion, deletion, replacement);
+          d[i][j] = 1 + Math.min(insertion, Math.min(deletion, replacement));
         }
       }
     }

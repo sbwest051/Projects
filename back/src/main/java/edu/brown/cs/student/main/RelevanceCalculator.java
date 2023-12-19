@@ -70,7 +70,6 @@ public class RelevanceCalculator {
               .mapToDouble(d -> d).max().orElse(0);
       relevanceScores.put(keyword, maxTfIdf);
     }
-    System.out.println(relevanceScores);
     return relevanceScores;
   }
 

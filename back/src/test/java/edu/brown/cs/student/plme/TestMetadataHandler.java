@@ -91,7 +91,7 @@ public class TestMetadataHandler {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
     List<String> keywordList = new ArrayList<>();
-    keywordList.add("Bronchialveolar Lavage Fluid");
+    keywordList.add("Bronchoalveolar Lavage Fluid");
     keywordList.add("Sputum");
     keywordList.add("Saliva");
     keywordList.add("oropharyngial");

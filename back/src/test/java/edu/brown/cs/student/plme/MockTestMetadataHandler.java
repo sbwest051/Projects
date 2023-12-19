@@ -91,6 +91,29 @@ public class MockTestMetadataHandler {
     Moshi moshi = new Moshi.Builder().build();
     JsonAdapter<PLMEInput> adapter = moshi.adapter(PLMEInput.class);
 
+    Map<String, List<String>> map = new LinkedHashMap<>();
+    List<String> kl = new ArrayList<>();
+    kl.add("longitudinal");
+    kl.add("over time");
+    map.put("Longitudinal", kl);
+    List<String> kl1 = new ArrayList<>();
+    kl1.add("cross-sectional");
+    kl1.add("cross-sectional/cohort");
+    kl1.add("cohort");
+    map.put("Cross-sectional", kl1);
+    List<String> kl2 = new ArrayList<>();
+    kl2.add("scoping");
+    kl2.add("review");
+    map.put("review", kl2);
+    List<String> kl3 = new ArrayList<>();
+    kl3.add("it is not clear");
+    kl3.add("not a longitudinal study");
+    kl3.add("unknown");
+    kl3.add("unspecified");
+    map.put("unknown", kl3);
+    MDCInput studyInput = new MDCInput("Type of Study", "Was this paper a review paper, "
+        + "longitudinal study, or cross-sectional/cohort study?", null, map);
+
     List<String> subjectList = new ArrayList<>();
     subjectList.add("sheep");
     subjectList.add("pigs");
@@ -102,6 +125,7 @@ public class MockTestMetadataHandler {
         subjectList, null);
 
     List<MDCInput> inputs = new ArrayList<>();
+    inputs.add(studyInput);
     inputs.add(subjectInput);
     System.out.println(adapter.toJson(new PLMEInput("data/LargerTestFiles.csv", null, inputs)));
     System.out.println(this.deserialize(adapter.toJson(new PLMEInput("data/LargerTestFiles.csv",

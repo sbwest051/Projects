@@ -192,9 +192,10 @@ public class MetadataHandler implements Route {
           // it in a temporary data structure. idf scores are computed after all documents are run.
           if (mdResult.equals("success")){
             Map<MDCInput, RScores> ratfMap = new HashMap<>();
-            ratfMap.put(column, this.getRaTfScores(column, rawResponse, raCalc,
-                    rvCalc, pdfContent, pdfResult));
-            rScoreMap.put(file.title(), ratfMap);
+            rScoreMap.putIfAbsent(file.title(), ratfMap);
+            rScoreMap.get(file.title()).put(column, this.getRaTfScores(column, rawResponse, raCalc,
+                rvCalc, pdfContent, pdfResult));
+
             metadata = new Metadata(mdResult, rawResponse, null, null);
           }
           metadataList.add(metadata);
