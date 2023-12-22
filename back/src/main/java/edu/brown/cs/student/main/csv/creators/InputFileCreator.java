@@ -12,12 +12,13 @@ public class InputFileCreator implements CreatorFromRow<InputFile> {
 
   /**
    * Contractual method with the CreatorFromRow interface. Will take a List<String></String> and
-   * return that exact same List<String></String>.
+   * return an InputFile. The first item must be the title, the second item must be the filepath.
+   * FilePath can be null given that the third item exists and contains a URL.
    *
    * @param row from Parser.
    * @return List<String></String>
-   * @throws FactoryFailureException contractually, but has no use in this particular creator due to
-   *     the simplicity of the class and method.
+   * @throws FactoryFailureException when less than two items are in the csv. Any item past index
+   * 2 will be ignored.
    */
   @Override
   public InputFile create(List<String> row) throws FactoryFailureException {
@@ -31,6 +32,11 @@ public class InputFileCreator implements CreatorFromRow<InputFile> {
     return new InputFile(helper(row.get(0)),helper(row.get(1)), helper(row.get(2)));
   }
 
+  /**
+   * Checks if a string is empty or null.
+   * @param cell string.
+   * @return null when empty/null. Returns cell otherwise.
+   */
   private String helper(String cell) {
     if (cell == null || cell.isEmpty()){
       return null;

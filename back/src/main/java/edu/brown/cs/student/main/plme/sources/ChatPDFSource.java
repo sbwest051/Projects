@@ -30,14 +30,29 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
+/**
+ * Class that communicates with the ChatPDF API. Involves loading in URLs, filepaths, and asking
+ * questions.
+ */
 public class ChatPDFSource implements PDFSource {
   private final HttpClient httpClient;
   private final CloseableHttpClient closeableHttpClient;
+
+  /**
+   * Instantiates a new HttpClient for url adding, instantiates a CloseableHttpClient for file
+   * adding (involves multipart entity).
+   */
   public ChatPDFSource() {
     this.httpClient = HttpClient.newHttpClient();
     this.closeableHttpClient = HttpClients.createDefault();
   }
 
+  /**
+   * Will add a URL to the ChatPDF api via post request. Returns sourceID for messages.
+   * @param url String url.
+   * @return String SourceID for messages correlating to the url.
+   * @throws DatasourceException if error from ChatPDF, serialization, or deserialization.
+   */
   @Override
   public String addURL(String url) throws DatasourceException {
     HttpRequest request = HttpRequest.newBuilder()
@@ -54,6 +69,13 @@ public class ChatPDFSource implements PDFSource {
     }
   }
 
+  /**
+   * Adds an existing file to the ChatPDF API via post request. Involves MultipartEntity post
+   * request, so uses a CloseableHttpClient.
+   * @param filepath must be in the data folder in the backend.
+   * @return SourceID for messages correlating to the file.
+   * @throws DatasourceException if error from ChatPDF, serialization, or deserialization.
+   */
   @Override
   public String addFile(String filepath) throws DatasourceException {
     try {
@@ -81,19 +103,31 @@ public class ChatPDFSource implements PDFSource {
         throw new DatasourceException("Status: "+ response.getStatusLine().getStatusCode() + "; "
             + "Message: "+ responseEntity);
       }
-      return deserializeResponse(new BufferedReader(new InputStreamReader(responseEntity.getContent())).readLine()).sourceId();
+      return deserializeResponse(new BufferedReader(
+          new InputStreamReader(responseEntity.getContent())).readLine()).sourceId();
     } catch (IOException | DatasourceException e) {
       throw new DatasourceException(e.getMessage());
     }
   }
 
+  /**
+   * Sends a post request to the ChatPDF API with a sourceID pertaining to the pdf and a
+   * user-inputted question.
+   * @param sourceId string that corresponds to the loaded pdf from the addFile or addUrl methods.
+   * @param question query to ask pertaining to the pdf.
+   * @return String content response from the GPT.
+   * @throws DatasourceException if sourceID, question is null. Will also be thrown if there is a
+   * connection issue, serialization, or deserialization issue.
+   */
   @Override
-  public String getContent(String sourceId, String question) throws DatasourceException
-      , NullPointerException {
+  public String getContent(String sourceId, String question) throws DatasourceException {
     if (sourceId == null){
-      throw new NullPointerException();
+      throw new DatasourceException("SourceID was null.");
     }
-    HttpClient client = HttpClient.newHttpClient();
+    if (question == null || question.isEmpty()){
+      throw new DatasourceException("Query was null or empty.");
+    }
+
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create("https://api.chatpdf.com/v1/chats/message"))
         .timeout(Duration.ofMinutes(2))
@@ -102,7 +136,7 @@ public class ChatPDFSource implements PDFSource {
         .POST(BodyPublishers.ofString(this.serializeRequest(sourceId, question)))
         .build();
     try {
-      HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+      HttpResponse<String> response = this.httpClient.send(request, BodyHandlers.ofString());
       if (response.statusCode() != 200){
         throw new DatasourceException("Status: "+ response.statusCode() + "; "
             + "Message: "+ response.body());
@@ -113,6 +147,14 @@ public class ChatPDFSource implements PDFSource {
     }
   }
 
+  /**
+   * Helper method that will serialize the ChatPDFRequest object into a readable json file for
+   * the post request.
+   * @param sourceId string that corresponds to the loaded pdf from the addFile or addUrl methods.
+   * @param question query to ask pertaining to the pdf.
+   * @return serialized request in the form of a json string.
+   * @throws DatasourceException if sourceID is null.
+   */
   private String serializeRequest(String sourceId, String question) throws DatasourceException {
     if (sourceId == null){
       throw new DatasourceException("SourceId of PDF was null. PDF may not have been loaded.");
@@ -127,6 +169,13 @@ public class ChatPDFSource implements PDFSource {
     return adapter.toJson(request);
   }
 
+  /**
+   * Responsible for deserializing the json response from the ChatPDF API. Will transform the
+   * json string into a ChatPDFResponse object.
+   * @param responseJson json from the api.
+   * @return converted ChatPDFResponse object.
+   * @throws DatasourceException if there is a parsing error (IOException).
+   */
   private ChatPDFResponse deserializeResponse(String responseJson) throws DatasourceException {
     try {
       Moshi moshi = new Moshi.Builder().build();

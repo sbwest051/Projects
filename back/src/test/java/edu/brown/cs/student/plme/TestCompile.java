@@ -106,7 +106,7 @@ public class TestCompile {
        + ".gov/pmc/articles/PMC3539924/pdf/2045-7022-2-21.pdf");
     List<InputFile> list = new ArrayList<>();
     list.add(file1);
-    list.add(file2);
+    //list.add(file2);
 
     List<String> keywordList = new ArrayList<>();
     keywordList.add("allergies");

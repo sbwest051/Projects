@@ -2,35 +2,65 @@ package edu.brown.cs.student.main.plme.sources;
 
 import edu.brown.cs.student.main.exceptions.DatasourceException;
 
+/**
+ * Class that mocks the ChatPDFSource for testing and cost-effective purposes.
+ */
 public class MockPDFSource implements PDFSource {
   private String sourceId;
+
+  /**
+   * Initializes the sourceId string. This helps mock the add url/filepath methods.
+   */
   public MockPDFSource(){
     this.sourceId = "default";
   }
+
+  /**
+   * For convenience purposes, just converts this.sourceId into the exact inputted string. Can be
+   * modified to have error handling for testing.
+   * @param url mockUrl to file.
+   * @return the mock sourceID.
+   * @throws DatasourceException contractually from the PDFSource interface.
+   */
   @Override
   public String addURL(String url) throws DatasourceException {
     this.sourceId = url;
     return this.sourceId;
   }
 
+  /**
+   * For convenience purposes, just converts this.sourceId into the exact inputted string. Can be
+   * modified to have error handling for testing.
+   * @param filepath mock filepath to file.
+   * @return the mock sourceID.
+   * @throws DatasourceException contractually from the PDFSource interface.
+   */
   @Override
   public String addFile(String filepath) throws DatasourceException {
     this.sourceId = filepath;
     return this.sourceId;
   }
 
+  /**
+   * Specifically mocks the getContent function of chatPDF pertaining to the data/LargerTestFile
+   * .csv test. Will run preloaded ChatPDF responses for testing the algorithms effectively.
+   * @param sourceId mock sourceId to the file (will just be the filepath/url)
+   * @param question string query.
+   * @return string mocked ChatPDF response.
+   * @throws DatasourceException contractually from the PDFSource interface.
+   */
   @Override
   public String getContent(String sourceId, String question) throws DatasourceException {
-    switch (sourceId){
+    switch (sourceId) {
       case "data/LargerTest/Asthma.pdf" -> {
-        if (question.equals("Who were the subjects of the study?")){
+        if (question.equals("Who were the subjects of the study?")) {
           return "The study included 127 children with asthma who were diagnosed and treated at the"
               + " Private Practice Cebe-lica in Maribor, Slovenia, over a period of 12 consecutive months.";
         }
         return "This paper was a longitudinal study.";
       }
       case "data/LargerTest/Biopsy.pdf" -> {
-        if (question.equals("Who were the subjects of the study?")){
+        if (question.equals("Who were the subjects of the study?")) {
           return "The study included 121 patients with peripheral lung infectious lesions.";
         }
         return "This paper was a prospective randomized study, which falls under the category of a longitudinal study.";
@@ -79,9 +109,10 @@ public class MockPDFSource implements PDFSource {
           return "The subjects of the study were six 20-month-old Suffolk cross sheep, consisting "
               + "of 5 females and 1 castrated male.";
         }
-        return "This paper describes a longitudinal study in which lung brushing samples were taken "
-            + "from three spatially disparate lung locations in six sheep at three time points "
-            + "(baseline, 1 month, and 3 months).";
+        return
+            "This paper describes a longitudinal study in which lung brushing samples were taken "
+                + "from three spatially disparate lung locations in six sheep at three time points "
+                + "(baseline, 1 month, and 3 months).";
       }
       case "data/LargerTest/Strep.pdf" -> {
         if (question.equals("Who were the subjects of the study?")) {
@@ -99,17 +130,6 @@ public class MockPDFSource implements PDFSource {
         return "This paper was a longitudinal study.";
       }
     }
-    if (sourceId.equals("test")){
-      switch (question) {
-        case "foop" -> {
-          return "yes";
-        }
-        case "yay" -> {
-          return "no";
-        }
-      }
-    }
-    return "null";
+    return "No valid question asked.";
   }
-
 }

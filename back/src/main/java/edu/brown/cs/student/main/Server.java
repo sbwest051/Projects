@@ -16,6 +16,7 @@ import static spark.Spark.options;
  */
 public class Server {
   public Server() {
+    // Removes warning messages from pdfbox during pdf reading.
     System.setProperty("org.apache.commons.logging.Log",
         "org.apache.commons.logging.impl.NoOpLog");
 

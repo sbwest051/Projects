@@ -12,13 +12,28 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
+/**
+ * Class responsible for all the tf-idf calculations for the corpus of files.
+ */
 public class RelevanceCalculator {
   private int count;
   private final Map<MDCInput, Map<String, Double>> idfMap;
+
+  /**
+   * Instantiates the count and idfMap. Called in the this.compile method of MetadataHandler.
+   */
   public RelevanceCalculator(){
     this.count = 0;
     this.idfMap = new HashMap<>();
   }
+
+  /**
+   * Reads a pdf document and returns its text. Will add to the count to get a total pdf count.
+   * @param file pdf.
+   * @return pdfContent string.
+   * @throws DatasourceException if error parsing the pdf for text. (All EOFExceptions and
+   * warnings from the pdfbox are silenced (see Server).
+   */
   public String readFile(File file) throws DatasourceException {
     try {
       PDDocument pdDocument = Loader.loadPDF(file);
@@ -32,6 +47,14 @@ public class RelevanceCalculator {
     }
   }
 
+  /**
+   * See calculateTFList. Does the same thing but for a Map from String to List of Strings.
+   * @param column MDCInput.
+   * @param content string to contain keywords (in this case text from pdf).
+   * @return frequency map that maps from a key word to a map of term frequencies from the
+   * content in the list of strings it mapped to.
+   * @throws DatasourceException if any of the parameters are null.
+   */
   public Map<String, Map<String, Double>> calculateTFMap(MDCInput column, String content) throws DatasourceException {
     if (column == null || column.keywordMap() == null){
       throw new DatasourceException("Could not get relevance scores because column or keyword "
@@ -45,6 +68,17 @@ public class RelevanceCalculator {
     return frequencyMap;
   }
 
+  /**
+   * Creates a term frequency map for each keyword in a keywordList from the text from a string
+   * (content, in this case the text from a pdf file). Also loads the idfMap that maps from the
+   * column to the term frequency map to count frequency of documents in the corpus containing
+   * the term. (Not case-sensitive and ignores punctuation at the ends of words.)
+   * @param column MDCInput.
+   * @param content string to contain keywords (in this case text from pdf).
+   * @param keywordList list of keywords to search through.
+   * @return frequency map that maps from a key word to the frequency it showed up in the content.
+   * @throws DatasourceException if any of the parameters are null.
+   */
   public Map<String, Double> calculateTFList(MDCInput column, String content,
       List<String> keywordList)
       throws DatasourceException {
@@ -71,6 +105,14 @@ public class RelevanceCalculator {
     return frequencyMap;
   }
 
+  /**
+   * Called to retrieve the final tf-idf values for a map. see this.getRelevanceScore. The
+   * keyword corresponds to the MAX tf-idf value in the list of strings pertaining to that key.
+   * @param column MDCInput.
+   * @param termFrequencies frequency map that maps from a key word to the frequency it showed up in the content.
+   * @return map from keyword to tf-idf relevance score.
+   * @throws DatasourceException if any of the parameters are null.
+   */
   public Map<String, Double> getMapRelevanceScore(MDCInput column, Map<String,
       Map<String, Double>> termFrequencies)
       throws DatasourceException {
@@ -90,6 +132,13 @@ public class RelevanceCalculator {
     return relevanceScores;
   }
 
+  /**
+   * Remaps the given termFrequency map to its tf-idf score.
+   * @param column MDCInput.
+   * @param termFrequencies
+   * @return frequency map that maps from a key word to the frequency it showed up in the content.
+   * @throws DatasourceException if any of the parameters are null.
+   */
   public Map<String, Double> getRelevanceScore(MDCInput column, Map<String, Double> termFrequencies)
       throws DatasourceException {
     if (column == null){
@@ -107,6 +156,12 @@ public class RelevanceCalculator {
     return relevanceScores;
   }
 
+  /**
+   * Calculates tf-idf score.
+   * @param column MDCInput to retrieve the docFrequency from this.idfMap.
+   * @param keyword to get score from.
+   * @return tf-idf score.
+   */
   private Double calculateIDF(MDCInput column, String keyword){
     double docFrequency = this.idfMap.get(column).get(keyword);
     return Math.log((1 + this.count)/(1 + docFrequency)) + 1;

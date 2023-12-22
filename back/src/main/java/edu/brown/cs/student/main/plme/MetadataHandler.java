@@ -29,13 +29,36 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+/**
+ * Class that contains all the functionality for creating a MetadataTable.
+ */
 public class MetadataHandler implements Route {
+
+  /**
+   * Max character limit for a question to ChatPDF.
+   */
   public static final int CHAR_LIMIT = 2500;
   private final PDFSource source;
+
+  /**
+   * Initializes the injection of the PDFSource object. this.source will be responsible for
+   * taking urls, filepaths, and queries and returning the corresponding strings.
+   * @param source PDFSource implementation (i.e., ChatPDFSource, MockPDFSource, etc.)
+   */
   public MetadataHandler(PDFSource source){
     this.source = source;
   }
 
+  /**
+   * Called when the tag /plme is run. Takes in a post request with a json body. This method
+   * specifically handles preliminary parameter error handling then delegates to the compile
+   * helper method to return the actual response.
+   * @param request must be of contentType application/json.
+   * @param response not used but contractually included.
+   * @return a serialized MetadataTable json string (see records/MetadataTable). Will include
+   * error methods for a variety of different errors.
+   * @throws Exception contractually.
+   */
   @Override
   public String handle(Request request, Response response) throws Exception {
     if (!request.contentType().equals("application/json")){
@@ -79,6 +102,12 @@ public class MetadataHandler implements Route {
     }
   }
 
+  /**
+   * Deserializes the JSON input from the frontend. (The json from the post request)/
+   * @param body json from the body of the post request/
+   * @return PLMEInput object.
+   * @throws BadRequestException for any parsing errors.
+   */
   private PLMEInput deserialize(String body) throws BadRequestException {
     try {
       Moshi moshi = new Moshi.Builder().build();
@@ -89,10 +118,16 @@ public class MetadataHandler implements Route {
     }
   }
 
+  /**
+   * Error checking helper method that checks for a variety of null inputs in the PLMEInput
+   * object from the json body from the post request.
+   * @param input deserialized json object.
+   * @return true if input is empty. (true => throw error)
+   */
   private boolean checkEmptyInput(@NotNull PLMEInput input){
     if (
         (input.filepath() == null || input.filepath().isEmpty())
-        && (!this.checkEmptyFiles(input.files()))
+        && (this.checkEmptyFiles(input.files()))
             || (input.columns() == null || input.columns().isEmpty())
     ){
       return true;
@@ -109,20 +144,31 @@ public class MetadataHandler implements Route {
 
   }
 
+  /**
+   * Error checks to make sure the InputFile list contains files with nonempty filepaths or urls
+   * (only needs to contain one or the other).
+   * @param files deserialized json object.
+   * @return true if input is empty. (true => throw error)
+   */
   private boolean checkEmptyFiles(List<InputFile> files){
     if (files == null || files.isEmpty()) {
-      return false;
+      return true;
     }
     for (InputFile file : files) {
       boolean filepath = (file.filepath() == null || file.filepath().isEmpty());
       boolean url = (file.url() == null || file.url().isEmpty());
       if (filepath && url) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
+  /**
+   * Error handling helper method to make sure all columns contain valid question lengths.
+   * @param columns MDCInput.
+   * @return false => not valid (throw error).
+   */
   private boolean checkColumnValidity(@NotNull List<MDCInput> columns){
     for (MDCInput column : columns){
       if (column.question().length() > CHAR_LIMIT){
@@ -132,6 +178,18 @@ public class MetadataHandler implements Route {
     return true;
   }
 
+  /**
+   * Method that contains most of the logic behind creating the MetadataTable object. Will loop
+   * through each file, and for each file, it will get the sourceID for the PDFSource and read
+   * the pdf for relevance score calculations. For each successfully run file, it will loop
+   * through each column, ask the question in the column, retrieve the reliability and term
+   * frequency scores from this.getRaTfScores and load it into the final file. After everything
+   * is run, it will call this.calculateRScores to get the final tf-idf relevance scores for each
+   * keyword for every file.
+   * @param files list of InputFiles.
+   * @param columns list of MDCInputs.
+   * @return loaded MetadataTable (Contains error messages if relevant.)
+   */
   @NotNull
   private MetadataTable compile(List<InputFile> files, List<MDCInput> columns){
     List<File> fileList = new ArrayList<>();
@@ -210,6 +268,12 @@ public class MetadataHandler implements Route {
         this.calculateRScores(columns, fileList,rScoreMap, rvCalc), null);
   }
 
+  /**
+   * Helper method for this.compile to retrieve the sourceId from the InputFile.
+   * @param file InputFile.
+   * @return sourceID string.
+   * @throws DatasourceException if sourceID is null.
+   */
   private String getSourceID(InputFile file) throws DatasourceException {
     String sourceId;
     if (file.url() == null || file.url().isEmpty()) {
@@ -223,7 +287,20 @@ public class MetadataHandler implements Route {
     return sourceId;
   }
 
-  public RScores getRaTfScores(MDCInput column, String rawResponse, ReliabilityCalculator raCalc,
+  /**
+   * Helper method for this.compile to create the temporary RScores object to house term
+   * frequency and Reliability scores.
+   * @param column MDCInput containing the question and keywordList/map
+   * @param rawResponse raw content response from the PDFSource.
+   * @param raCalc reliability calculator.
+   * @param rvCalc relevance calculator (because instance variables are housed in here, this is
+   *               important.)
+   * @param pdfContent string containing the text of the pdf.
+   * @param pdfResult string that denotes whether or not text was successfully retrieved from the
+   *                 pdf. ("success" is a success.)
+   * @return RScores object.
+   */
+  private RScores getRaTfScores(MDCInput column, String rawResponse, ReliabilityCalculator raCalc,
       RelevanceCalculator rvCalc, String pdfContent, String pdfResult){
     String errText = null;
     Map<String, Double> raMap = null;
@@ -251,11 +328,13 @@ public class MetadataHandler implements Route {
   /**
    * Re-loops into the FileList to add all the rScores into the metadata, having the idf values
    * completely calculated.
-   * @param columnList
-   * @param fileList
-   * @param rScoreMap
-   * @param rvCalc
-   * @return
+   * @param columnList list of MDCInputs containing the questions.
+   * @param fileList list of Files.
+   * @param rScoreMap Maps MDCInput to RScores that contains the tf values and the reliability
+   *                  scores.
+   * @param rvCalc relevance calculator (because instance variables are housed in here, this is
+   *    *          important.)
+   * @return List of Files containing the finalized RScores.
    */
   public List<File> calculateRScores(List<MDCInput> columnList, List<File> fileList,
       Map<String, Map<MDCInput, RScores>> rScoreMap, RelevanceCalculator rvCalc){
